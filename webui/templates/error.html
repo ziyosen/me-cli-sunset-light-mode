@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{ title or "Error" }} · myengsel{% endblock %}
+{% block content %}
+
+<div class="max-w-md mx-auto my-12 px-1">
+  <div class="bg-white border border-slate-200/80 rounded-[24px] p-8 text-center shadow-[0_4px_24px_rgba(0,0,0,0.02)]">
+    
+    <div class="w-14 h-14 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center text-xl mx-auto mb-4 shadow-inner select-none">
+      ⚠️
+    </div>
+    
+    <h1 class="text-lg font-black tracking-tight text-slate-900 leading-snug">
+      {{ title or "Terjadi Kesalahan" }}
+    </h1>
+    
+    <p class="text-xs text-slate-500 font-medium mt-2 leading-relaxed max-w-xs mx-auto">
+      {{ message or "Sistem tidak dapat memproses permintaan Anda saat ini. Silakan coba beberapa saat lagi." }}
+    </p>
+    
+    <div class="mt-6 pt-2 border-t border-slate-50">
+      <a href="/" class="inline-block w-full sm:w-auto sm:px-8 py-3 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-black tracking-wide transition-all active:scale-95 shadow-sm">
+        Kembali ke Beranda
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<div class="pb-24"></div>
+
+{% endblock %}

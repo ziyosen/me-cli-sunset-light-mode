@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}{{ pkg.package_option.name }} · myengsel{% endblock %}
+
+{% block content %}
+{% set opt = pkg.package_option %}
+{% set fam = pkg.package_family %}
+{% set var = pkg.package_detail_variant %}
+{% set option_code = opt.package_option_code %}
+{% set family_code = fam.package_family_code %}
+
+<div class="max-w-2xl mx-auto px-4">
+  <div class="bg-white border border-slate-100 rounded-[32px] p-8 mb-6 shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{{ fam.name }}{% if var %} · {{ var.name }}{% endif %}</span>
+        <h1 class="text-2xl font-black text-slate-900 mt-1">{{ opt.name }}</h1>
+        <div class="text-3xl font-black text-slate-900 mt-3">{{ opt.price | rp }}</div>
+        <div class="flex items-center gap-4 mt-3 text-xs text-slate-500 font-bold">
+          <span class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> {{ opt.validity }}</span>
+          {% if opt.point %}<span class="flex items-center gap-1.5"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg> {{ opt.point }} Pts</span>{% endif %}
+        </div>
+      </div>
+      <form action="/bookmark/add" method="post">
+        <input type="hidden" name="family_code" value="{{ family_code }}">
+        <input type="hidden" name="package_option_code" value="{{ option_code }}">
+        <button type="submit" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-50 hover:bg-slate-100 transition-all text-slate-900 border border-slate-100">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+        </button>
+      </form>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mt-8 pt-8 border-t border-slate-50">
+      <div>
+        <div class="text-[9px] text-slate-400 uppercase font-black tracking-widest">Family Code</div>
+        <div class="font-mono text-xs font-bold text-slate-900 mt-1">{{ family_code }}</div>
+      </div>
+      <div>
+        <div class="text-[9px] text-slate-400 uppercase font-black tracking-widest">Option Code</div>
+        <button onclick="document.getElementById('rawCodeModal').style.display='flex'" class="mt-1 px-3 py-1 bg-slate-50 hover:bg-slate-100 rounded-lg text-[10px] font-mono font-bold text-slate-600 border border-slate-100 transition-all">Lihat Kode</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white border border-slate-100 rounded-[32px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
+    <h2 class="font-black text-slate-900 mb-6 text-sm">Pembayaran</h2>
+    <form id="purchaseForm" action="/purchase/{{ option_code }}" method="post" class="space-y-4">
+      <input type="hidden" name="payment_for" value="{{ fam.payment_for }}">
+      <div>
+        <select id="methodSelect" class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[13px] font-bold text-slate-900 focus:border-black outline-none transition-all cursor-pointer appearance-none" name="method" required>
+          <option value="balance">Pulsa (Balance)</option>
+          <option value="qris">QRIS</option>
+          <option value="ewallet_dana">DANA</option>
+          <option value="ewallet_shopeepay">ShopeePay</option>
+          <option value="decoy_balance">Pulsa + Decoy</option>
+          <option value="decoy_qris">QRIS + Decoy (+1K)</option>
+        </select>
+      </div>
+      <div id="wallet-num" style="display:none">
+        <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-[13px] font-bold text-slate-900 outline-none" type="text" name="wallet_number" placeholder="Nomor E-Wallet">
+      </div>
+      <button id="buyBtn" type="button" class="w-full py-4 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98]">Bayar Sekarang</button>
+    </form>
+  </div>
+</div>
+
+<div id="rawCodeModal" style="display:none;" class="fixed inset-0 z-[200] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/10 backdrop-blur-md" onclick="this.parentElement.style.display='none'"></div>
+  <div class="bg-white w-full max-w-sm rounded-[32px] p-8 shadow-[0_30px_60px_rgba(0,0,0,0.15)] relative border border-slate-100">
+    <h3 class="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">Raw Option Code</h3>
+    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 mb-6 overflow-x-auto">
+      <p id="codeToCopy" class="text-[10px] font-mono text-slate-500 break-all">{{ option_code }}</p>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <button onclick="copyToClipboard()" class="py-3 rounded-2xl bg-slate-100 text-slate-900 font-bold text-xs uppercase tracking-widest">Salin Kode</button>
+      <button onclick="document.getElementById('rawCodeModal').style.display='none'" class="py-3 rounded-2xl bg-slate-900 text-white font-bold text-xs uppercase tracking-widest">Tutup</button>
+    </div>
+  </div>
+</div>
+
+<div id="confirmModal" style="display:none;" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/10 backdrop-blur-md" id="overlay"></div>
+  <div class="bg-white w-full max-w-xs rounded-[32px] p-8 shadow-[0_30px_60px_rgba(0,0,0,0.15)] relative border border-slate-100 text-center">
+    <h3 class="text-lg font-black text-slate-900 mb-3">Konfirmasi</h3>
+    <p class="text-xs text-slate-500 mb-8 leading-relaxed">Yakin ingin membayar menggunakan <span id="methodName" class="font-bold text-slate-900"></span>?</p>
+    <div class="grid grid-cols-2 gap-3">
+      <button id="cancelBtn" class="py-3 rounded-2xl bg-slate-50 text-slate-600 font-bold text-xs">Batal</button>
+      <button id="confirmBtn" class="py-3 rounded-2xl bg-slate-900 text-white font-bold text-xs">Bayar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Fungsi Salin
+  function copyToClipboard() {
+    const text = document.getElementById('codeToCopy').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Kode berhasil disalin!");
+    });
+  }
+
+  // Toggle E-wallet
+  document.getElementById('methodSelect').addEventListener('change', function(e){
+    document.getElementById('wallet-num').style.display = e.target.value.startsWith('ewallet') ? 'block' : 'none';
+  });
+
+  // Modal Pembayaran Logic
+  const modal = document.getElementById('confirmModal');
+  const buyBtn = document.getElementById('buyBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const overlay = document.getElementById('overlay');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const methodSelect = document.getElementById('methodSelect');
+
+  buyBtn.addEventListener('click', function() {
+    document.getElementById('methodName').innerText = methodSelect.options[methodSelect.selectedIndex].text;
+    modal.style.display = 'flex';
+  });
+
+  cancelBtn.addEventListener('click', () => modal.style.display = 'none');
+  overlay.addEventListener('click', () => modal.style.display = 'none');
+  confirmBtn.addEventListener('click', () => document.getElementById('purchaseForm').submit());
+</script>
+{% endblock %}

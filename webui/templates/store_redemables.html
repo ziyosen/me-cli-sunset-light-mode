@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Redemables · myengsel{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pl-1">
+  <div>
+    <h1 class="text-xl font-black tracking-tight text-slate-900">🎁 Redemables</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Dapatkan reward, voucher, dan bonus eksklusif yang tersedia untuk Anda.</p>
+  </div>
+  
+  <form method="get" class="shrink-0">
+    <label class="relative inline-flex items-center gap-3 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-2xl cursor-pointer select-none transition-all hover:border-slate-300">
+      <input type="checkbox" name="enterprise" value="true" {% if enterprise %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+      <div class="w-8 h-4.5 bg-slate-200 rounded-full relative transition-colors duration-200 peer-checked:bg-slate-900 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-3.5 shadow-inner"></div>
+      <span class="text-xs font-black tracking-wide text-slate-500 peer-checked:text-slate-900">Enterprise Mode</span>
+    </label>
+  </form>
+</div>
+
+{% if not categories %}
+<div class="bg-white border border-slate-200 rounded-[24px] p-8 text-slate-400 text-sm text-center shadow-[0_4px_16px_rgba(0,0,0,0.01)]">
+  <div class="text-3xl mb-2">🫥</div>
+  <p class="font-bold text-slate-800">Belum ada item redeemable yang tersedia saat ini.</p>
+</div>
+{% endif %}
+
+{% for cat in categories %}
+<section class="mb-8">
+  <div class="flex items-center justify-between mb-3.5 pl-1">
+    <h2 class="text-[10px] font-black tracking-wider text-slate-400 uppercase">{{ cat.name }}</h2>
+    <span class="text-[10px] font-mono font-bold text-slate-300 uppercase">{{ cat.code }}</span>
+  </div>
+
+  {% if not cat.redeem_items %}
+  <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-400 text-xs italic font-medium">
+    Belum ada item di kategori ini.
+  </div>
+  {% else %}
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+  {% for r in cat.redeem_items %}
+    
+    {% if r.href %}
+    <a href="{{ r.href }}" class="bg-white border border-slate-200/80 rounded-[20px] p-4 flex gap-4 shadow-[0_2px_8px_rgba(0,0,0,0.01)] transition-all duration-200 hover:border-slate-400 hover:shadow-[0_4px_18px_rgba(0,0,0,0.02)] active:scale-[0.99] group">
+    {% else %}
+    <div class="bg-slate-50/60 border border-slate-200/40 rounded-[20px] p-4 flex gap-4 opacity-60 select-none cursor-not-allowed">
+    {% endif %}
+      
+      <div class="w-12 h-12 rounded-xl shrink-0 flex items-center justify-center">
+        {% if r.icon %}
+        <img src="{{ r.icon }}" alt="" class="w-full h-full object-contain">
+        {% else %}
+        <div class="w-12 h-12 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-lg shadow-inner">🎁</div>
+        {% endif %}
+      </div>
+
+      <div class="min-w-0 flex-1 flex flex-col justify-between">
+        <div>
+          <div class="font-black text-sm text-slate-900 leading-snug group-hover:text-black transition-colors line-clamp-2">
+            {{ r.name }}
+          </div>
+          
+          {% if r.valid_until %}
+          <div class="text-[10px] font-bold text-slate-400 mt-1 flex items-center gap-1">
+            ⏱ Berlaku s/d {{ r.valid_until }}
+          </div>
+          {% endif %}
+        </div>
+
+        {% if r.action_type %}
+        <div class="mt-2.5">
+          {% if r.href %}
+          <span class="inline-block text-[9px] font-black uppercase tracking-wide px-2 py-0.5 rounded-md bg-slate-900 text-white shadow-sm">
+            {{ r.action_type }}
+          </span>
+          {% else %}
+          <span class="inline-block text-[9px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-400">
+            {{ r.action_type }} (NA)
+          </span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+    {% if r.href %}</a>{% else %}</div>{% endif %}
+  {% endfor %}
+  </div>
+  {% endif %}
+</section>
+{% endfor %}
+
+<div class="pb-24"></div>
+
+{% endblock %}

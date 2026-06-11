@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Notifikasi · me-cli{% endblock %}
+{% block content %}
+
+<div class="max-w-md mx-auto my-6 px-2">
+  
+  <div class="mb-5 pl-1">
+    <a href="/notifications" class="text-xs font-black tracking-wide text-slate-400 hover:text-slate-900 transition-all flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18" />
+      </svg>
+      Kembali
+    </a>
+  </div>
+
+  <div class="mb-6 pl-1">
+    <h1 class="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-slate-900">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+      </svg>
+      Detail Notifikasi
+    </h1>
+    <p class="text-[11px] font-medium text-slate-400 mt-0.5">Struktur data lengkap dari objek payload notifikasi masuk.</p>
+  </div>
+
+  <div class="bg-white border border-slate-100 rounded-3xl p-5 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
+    <div class="mb-3">
+      <span class="text-[10px] font-black tracking-widest text-slate-400 uppercase">Payload Data (JSON)</span>
+    </div>
+    <pre class="text-[11px] overflow-x-auto bg-slate-50 border border-slate-100 p-4 rounded-xl font-mono text-slate-600 leading-relaxed select-all">{{ data | tojson(indent=2) }}</pre>
+  </div>
+
+</div>
+
+<div class="pb-16"></div>
+
+{% endblock %}

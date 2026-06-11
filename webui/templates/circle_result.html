@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · myengsel{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">{{ title }}</h1>
+<div class="card">
+  <pre class="text-xs overflow-x-auto bg-slate-950 p-2 rounded">{{ res | tojson(indent=2) }}</pre>
+</div>
+<a class="btn btn-secondary mt-4" href="/circle">← Kembali ke Circle</a>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}{{ family.package_family.name }} · myengsel{% endblock %}
+
+{% block content %}
+{% set fam = family.package_family %}
+
+<div class="max-w-3xl mx-auto px-4">
+  <div class="bg-white border border-slate-100 rounded-[32px] p-8 mb-8 shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
+    <h1 class="text-2xl font-black text-slate-900">{{ fam.name }}</h1>
+    <div class="flex flex-wrap items-center gap-3 mt-3">
+      <span class="font-mono text-[10px] bg-slate-100 px-2.5 py-1 rounded-lg text-slate-500 font-bold">{{ code }}</span>
+      <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">{{ fam.payment_for }}</span>
+      <span class="text-[10px] text-slate-400 uppercase font-black tracking-widest">{{ fam.plan_type }}</span>
+    </div>
+  </div>
+
+  {% for variant in family.package_variants %}
+  <div class="mb-10">
+    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-5 px-2">{{ variant.name }}</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {% for opt in variant.package_options %}
+      <a href="/packages/by-option?code={{ opt.package_option_code }}" 
+         class="group bg-white border border-slate-100 rounded-2xl p-6 transition-all hover:border-black hover:shadow-[0_10px_30px_rgba(0,0,0,0.05)] active:scale-[0.98]">
+        <div class="font-bold text-sm text-slate-900">{{ opt.name }}</div>
+        <div class="font-black text-slate-900 mt-1">{{ opt.price | rp }}</div>
+        <div class="text-[10px] text-slate-400 font-bold mt-2">
+          {{ opt.validity }}{% if opt.point %} · {{ opt.point }} Pts{% endif %}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endfor %}
+
+  <form action="/purchase/family-loop" method="get" class="bg-white border border-slate-100 rounded-[32px] p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
+    <div class="text-xs font-bold text-slate-500">Ingin membeli semua paket secara berulang?</div>
+    <input type="hidden" name="family_code" value="{{ code }}">
+    <button class="w-full sm:w-auto bg-slate-900 hover:bg-black text-white text-[10px] font-black uppercase tracking-widest px-6 py-3 rounded-xl transition-all active:scale-[0.98]" type="submit">
+      Loop Aktifkan
+    </button>
+  </form>
+</div>
+
+<div class="pb-24"></div>
+{% endblock %}

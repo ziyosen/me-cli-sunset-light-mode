@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}MY-ENGSEL{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12/dist/ext/sse.js"></script>
+  <link rel="stylesheet" href="/static/css/custom.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧩%3C/text%3E%3C/svg%3E">
+  <script>
+    tailwind.config = { theme: { extend: {
+      colors: { brand: { 50:'#eef2ff',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca'}}
+    } } }
+  </script>
+</head>
+<body class="bg-white text-slate-900 min-h-screen antialiased">
+
+<div id="page-loader" class="fixed inset-0 z-[100] bg-white flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+  <div class="flex flex-col items-center gap-6 px-6 text-center">
+    <div class="relative w-16 h-16 flex items-center justify-center">
+      <div class="absolute w-16 h-16 rounded-full border-2 border-slate-100"></div>
+      <div class="absolute w-16 h-16 rounded-full border-t-2 border-t-slate-950 animate-spin"></div>
+      <div class="font-black text-slate-950 text-xs">MYENGSEL</div>
+    </div>
+    
+    <div class="space-y-1">
+      <div id="page-loader-msg" class="text-sm font-bold text-slate-950 tracking-widest uppercase">Memproses</div>
+      <div class="text-[10px] text-slate-400 font-medium">Sistem sedang menyiapkan data Anda</div>
+    </div>
+  </div>
+</div>
+
+
+<div id="confirm-modal" class="fixed inset-0 z-[60] flex items-end sm:items-center justify-center p-0 sm:p-4 pointer-events-none" style="opacity:0; transition: opacity 150ms ease;">
+  <div id="confirm-backdrop" class="absolute inset-0 bg-slate-900/30 backdrop-blur-md"></div>
+  
+  <div id="confirm-panel" class="relative bg-white rounded-t-[32px] sm:rounded-[32px] shadow-[0_24px_60px_rgba(0,0,0,0.15)] w-full sm:max-w-sm transform translate-y-4 sm:translate-y-0 transition-transform duration-150 border border-slate-100/80">
+    <div class="p-6">
+      
+      <div class="flex flex-col items-center text-center">
+        <div id="confirm-icon" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 bg-amber-50 text-amber-500 border border-amber-100 mb-4 shadow-sm">⚠️</div>
+        
+        <div class="min-w-0 w-full">
+          <h3 id="confirm-title" class="font-black text-xl text-slate-950 tracking-tight">Konfirmasi</h3>
+          <div id="confirm-message" class="text-xs text-slate-500 mt-2 leading-relaxed px-2">Yakin mau lanjut?</div>
+        </div>
+      </div>
+      
+      <div id="confirm-detail-wrap" class="mt-4 hidden">
+        <div id="confirm-detail" class="text-[11px] text-amber-600 bg-amber-50/50 border border-amber-100 rounded-2xl p-3.5 font-mono break-all text-center"></div>
+      </div>
+      
+      <div class="flex flex-col sm:flex-row gap-2 mt-6">
+        <button type="button" id="confirm-ok" class="w-full sm:order-2 py-3.5 rounded-2xl text-xs font-bold bg-slate-950 hover:bg-black text-white shadow-md active:scale-[0.98] transition-all">Lanjut</button>
+        <button type="button" id="confirm-cancel" class="w-full sm:order-1 py-3.5 rounded-2xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-500 active:scale-[0.98] transition-all">Batal</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+
+{% set sections = [
+  {'label':'Beranda', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>', 'href':'/'},
+  {'label':'Paket Saya', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>', 'href':'/packages/my'},
+  {'group':'Beli Paket', 'items':[
+    {'label':'Hot', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 2-3 4-3 0 2 1.5 3 2.5 4.5m-1.843 6.157A8 8 0 016.343 7.343S7 9 9 10c0-2 2-3 4-3 0 2 1.5 3 2.5 4.5"/></svg>', 'href':'/hot'},
+    {'label':'Hot-2', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 2-3 4-3 0 2 1.5 3 2.5 4.5m-1.843 6.157A8 8 0 016.343 7.343S7 9 9 10c0-2 2-3 4-3 0 2 1.5 3 2.5 4.5"/></svg>', 'href':'/hot2'},
+    {'label':'Option Code', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>', 'href':'/packages/by-option'},
+    {'label':'Family Code', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>', 'href':'/packages/by-family'},
+    {'label':'Loop Family', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>', 'href':'/purchase/family-loop'},
+    {'label':'Bookmark', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>', 'href':'/bookmark'},
+  ]},
+  {'group':'Komunitas', 'items':[
+    {'label':'Family Plan', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>', 'href':'/family-plan'},
+    {'label':'Circle', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 110 4 2 2 0 010-4zM11 12a2 2 0 110 4 2 2 0 010-4zM11 20a2 2 0 110 4 2 2 0 010-4zM19 8a2 2 0 110 4 2 2 0 010-4zM3 8a2 2 0 110 4 2 2 0 010-4z"/></svg>', 'href':'/circle'},
+  ]},
+  {'group':'Toko', 'items':[
+    {'label':'Segments', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>', 'href':'/store/segments'},
+    {'label':'Families', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>', 'href':'/store/families'},
+    {'label':'All Packages', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>', 'href':'/store/packages'},
+    {'label':'Redemables', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/></svg>', 'href':'/store/redemables'},
+  ]},
+  {'group':'Lainnya', 'items':[
+    {'label':'Transaksi', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>', 'href':'/transactions'},
+    {'label':'Notifikasi', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>', 'href':'/notifications'},
+    {'label':'Register', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>', 'href':'/register'},
+    {'label':'Validate MSISDN', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>', 'href':'/validate-msisdn'},
+  ]},
+  {'group':'Settings', 'items':[
+    {'label':'Monitoring', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>', 'href':'/monitoring'},
+    {'label':'Telegram', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5"/></svg>', 'href':'/monitoring/telegram'},
+    {'label':'Decoy', 'icon':'<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>', 'href':'/settings/decoy'},
+  ]},
+] %}
+{% set path = request.url.path %}
+
+
+<header class="bg-white border-b border-slate-100 sticky top-0 z-30 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.02)]">
+  <div class="flex items-center justify-between px-4 h-16 lg:pl-72">
+    
+    <div class="flex items-center gap-3">
+      <button id="nav-toggle" class="lg:hidden text-slate-500 hover:text-slate-900 p-2 rounded-xl hover:bg-slate-50 active:scale-95 transition-all" aria-label="menu">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      
+      <a href="/" class="font-black text-base inline-flex items-center gap-1.5 tracking-tight group">
+        <span class="text-slate-900 transition-opacity group-hover:opacity-80 uppercase">
+          MY-ENGSEL
+        </span>
+      </a>
+    </div>
+
+    <div class="flex items-center gap-2 text-xs font-semibold">
+  {% if active_user %}
+    <form action="/accounts/activate" method="post" class="hidden md:flex items-center" data-no-loader>
+      <select name="number" class="bg-white border border-slate-200 rounded-2xl px-4 py-2 text-xs text-slate-900 font-bold focus:outline-none focus:border-black transition-all appearance-none cursor-pointer pr-8" onchange="this.form.submit()">
+        {% for u in accounts %}
+          <option value="{{ u.number }}" {% if u.number == active_user.number %}selected{% endif %}>{{ u.number }} · {{ u.subscription_type or '?' }}</option>
+        {% endfor %}
+      </select>
+    </form>
+
+    <a href="/accounts" class="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 px-4 py-2 rounded-2xl transition-all active:scale-95 shadow-sm">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+      </svg>
+      <span class="font-mono tracking-tight">{{ active_user.number }}</span>
+    </a>
+  {% endif %}
+
+  {% if webui_user %}
+    <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+      <span class="text-slate-900 hidden sm:flex items-center gap-1.5 font-bold px-1">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+        </svg>
+        {{ webui_user.username }}
+      </span>
+      
+      <a href="/u/logout" 
+         class="w-8 h-8 flex items-center justify-center text-slate-500 hover:text-black bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl transition-all active:scale-95 shadow-sm" 
+         title="Logout"
+         data-confirm="Apakah Anda yakin ingin keluar?"
+         data-confirm-title="Konfirmasi Logout"
+         data-confirm-variant="primary" 
+         data-confirm-ok="Logout">
+         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+         </svg>
+      </a>
+    </div>
+  {% else %}
+    <a href="/u/login" class="bg-black hover:bg-slate-800 text-white px-4 py-2 rounded-2xl font-bold transition-all active:scale-95 shadow-sm">Login</a>
+  {% endif %}
+</div>
+
+
+  </div>
+</header>
+
+
+<aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-slate-100 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto overflow-x-hidden shadow-xl">
+
+  <div class="flex items-center justify-between p-6 border-b border-slate-100">
+    <div>
+      <div class="font-black text-lg tracking-tight text-slate-950">
+        <span class="text-slate-700">MY-ENGSEL</span>
+      </div>
+      <div class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mt-1">
+        Web Dashboard
+      </div>
+    </div>
+
+    <button onclick="document.getElementById('sidebar').classList.add('-translate-x-full');document.getElementById('nav-backdrop').classList.add('hidden');"
+            class="lg:hidden w-9 h-9 rounded-xl hover:bg-slate-100 text-slate-500 hover:text-slate-900 transition-all">
+      ✕
+    </button>
+  </div>
+
+  <nav class="px-3 py-4 space-y-5">
+    {% for sec in sections %}
+      <div>
+        {% if sec.group %}
+          <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2 px-3">
+            {{ sec.group }}
+          </p>
+
+          {% for it in sec['items'] %}
+            <a href="{{ it.href }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all {% if path == it.href or (it.href != '/' and path.startswith(it.href)) %}bg-slate-950 text-white shadow-sm{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+              {# Memastikan ikon grup muncul dan aman untuk dirender #}
+              {% if it.icon %}
+                <span class="flex items-center justify-center">{{ it.icon | safe }}</span>
+              {% endif %}
+              <span>{{ it.label }}</span>
+            </a>
+          {% endfor %}
+
+        {% else %}
+          <a href="{{ sec.href }}"
+             class="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-all {% if path == sec.href %}bg-slate-950 text-white shadow-sm{% else %}text-slate-500 hover:text-slate-900 hover:bg-slate-50{% endif %}">
+            <span class="flex items-center justify-center">{{ sec.icon | safe }}</span>
+            <span>{{ sec.label }}</span>
+          </a>
+        {% endif %}
+      </div>
+    {% endfor %}
+</nav>
+
+
+  <div class="p-6 border-t border-slate-100">
+    {% if webui_user %}
+      <div class="mb-6 p-5 bg-white border border-slate-100 rounded-3xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07)]">
+        <div class="flex justify-between items-center">
+          <div>
+            <div class="text-[10px] tracking-widest text-slate-400 uppercase font-semibold">
+              Signed in as
+            </div>
+            <div class="text-sm text-black font-semibold mt-0.5">
+              {{ webui_user.username }}
+            </div>
+          </div>
+          
+          <a href="/u/logout" 
+   data-confirm="Apakah Anda yakin ingin keluar?"
+   data-confirm-title="Konfirmasi Keluar"
+   data-confirm-variant="primary" 
+   data-confirm-ok="Logout"
+   class="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-black hover:bg-slate-50 rounded-full transition-all">
+   
+   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+     <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+   </svg>
+</a>
+
+
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="px-2 space-y-1">
+      <div class="text-[11px] text-slate-400 font-medium">
+        mhmdsairi.my.id
+      </div>
+      <a href="https://t.me/mhmdsairii" 
+         target="_blank" 
+         class="block text-[11px] text-black font-medium hover:opacity-60 transition-opacity">
+        Admin @myengsel ↗
+      </a>
+    </div>
+  </div>
+
+</aside>
+
+<div id="nav-backdrop" class="lg:hidden fixed inset-0 bg-slate-900/20 backdrop-blur-xs z-30 hidden"></div>
+
+<main class="lg:pl-64 min-h-screen">
+  <div class="px-4 py-8 md:px-8 max-w-5xl mx-auto">
+    {% block content %}{% endblock %}
+  </div>
+</main>
+
+
+
+<div class="h-24 lg:hidden"></div>
+
+<div class="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-white/80 backdrop-blur-lg border-t border-slate-100 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.02)]">
+  <nav class="max-w-md mx-auto px-4 py-2">
+    <div class="grid grid-cols-5 text-[9px] font-bold tracking-tight">
+      
+      <a href="/" class="flex flex-col items-center justify-center py-1 transition-all active:scale-95 {% if path == '/' %}text-slate-900 font-black{% else %}text-slate-400{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mb-0.5 transition-transform duration-200 {% if path == '/' %}scale-105 stroke-[2.5]{% endif %}">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+        <span>Home</span>
+      </a>
+
+      <a href="/packages/my" class="flex flex-col items-center justify-center py-1 transition-all active:scale-95 {% if path == '/packages/my' %}text-slate-900 font-black{% else %}text-slate-400{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mb-0.5 transition-transform duration-200 {% if path == '/packages/my' %}scale-105 stroke-[2.5]{% endif %}">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+        </svg>
+        <span>Paket</span>
+      </a>
+
+      <a href="/hot" class="flex flex-col items-center justify-center py-1 transition-all active:scale-95 {% if path == '/hot' %}text-slate-900 font-black{% else %}text-slate-400{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mb-0.5 transition-transform duration-200 {% if path == '/hot' %}scale-105 stroke-[2.5]{% endif %}">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48" />
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.467 5.99 5.99 0 0 0-1.925 3.546 5.974 5.974 0 0 1-2.133-1A3.75 3.75 0 0 0 12 18Z" />
+        </svg>
+        <span>Hot</span>
+      </a>
+
+      <a href="/transactions" class="flex flex-col items-center justify-center py-1 transition-all active:scale-95 {% if path == '/transactions' %}text-slate-900 font-black{% else %}text-slate-400{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mb-0.5 transition-transform duration-200 {% if path == '/transactions' %}scale-105 stroke-[2.5]{% endif %}">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+        </svg>
+        <span>History</span>
+      </a>
+
+      <a href="/accounts" class="flex flex-col items-center justify-center py-1 transition-all active:scale-95 {% if path == '/accounts' %}text-slate-900 font-black{% else %}text-slate-400{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 mb-0.5 transition-transform duration-200 {% if path == '/accounts' %}scale-105 stroke-[2.5]{% endif %}">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+        </svg>
+        <span>Akun</span>
+      </a>
+
+    </div>
+  </nav>
+</div>
+
+
+
+<script>
+// Fungsi JavaScript Anda tetap utuh di bawah ini...
+(function(){
+  const sb = document.getElementById('sidebar'),
+        bd = document.getElementById('nav-backdrop'),
+        bt = document.getElementById('nav-toggle');
+  function open(){ sb.classList.remove('-translate-x-full'); bd.classList.remove('hidden'); }
+  function close(){ sb.classList.add('-translate-x-full'); bd.classList.add('hidden'); }
+  bt && bt.addEventListener('click', open);
+  bd && bd.addEventListener('click', close);
+})();
+
+(function(){
+  const modal = document.getElementById('confirm-modal');
+  if (!modal) return;
+  const backdrop = document.getElementById('confirm-backdrop'),
+        panel = document.getElementById('confirm-panel'),
+        iconEl = document.getElementById('confirm-icon'),
+        titleEl = document.getElementById('confirm-title'),
+        msgEl = document.getElementById('confirm-message'),
+        detailWrap = document.getElementById('confirm-detail-wrap'),
+        detailEl = document.getElementById('confirm-detail'),
+        okBtn = document.getElementById('confirm-ok'),
+        cancelBtn = document.getElementById('confirm-cancel');
+  let pending = null;
+  const VARIANTS = {
+    danger:  { icon:'🗑️', iconCls:'bg-red-50 text-red-600 border-red-100', okCls:'bg-red-600 hover:bg-red-700 text-white', okText:'Hapus' },
+    warning: { icon:'⚠️', iconCls:'bg-amber-50 text-amber-500 border-amber-100', okCls:'bg-slate-950 hover:bg-black text-white', okText:'Lanjut' },
+    primary: { icon:'⚡', iconCls:'bg-indigo-50 text-indigo-600 border-indigo-100', okCls:'bg-slate-950 hover:bg-black text-white', okText:'Lanjut' },
+    pay:     { icon:'💸', iconCls:'bg-emerald-50 text-emerald-600 border-emerald-100', okCls:'bg-slate-950 hover:bg-black text-white', okText:'Bayar' },
+    otp:     { icon:'📩', iconCls:'bg-sky-50 text-sky-600 border-sky-100', okCls:'bg-slate-950 hover:bg-black text-white', okText:'Kirim OTP' },
+  };
+  function applyVariant(v) {
+    const cfg = VARIANTS[v] || VARIANTS.warning;
+    iconEl.className = 'w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 border shadow-sm mb-4 ' + cfg.iconCls;
+    iconEl.textContent = cfg.icon;
+    okBtn.className = 'w-full sm:order-2 py-3.5 rounded-2xl text-xs font-bold shadow-md active:scale-[0.98] transition-all ' + cfg.okCls;
+    return cfg;
+  }
+  function show({title, message, detail, variant, okText, cancelText}, onOk, onCancel) {
+    const cfg = applyVariant(variant);
+    titleEl.textContent = title || 'Konfirmasi';
+    msgEl.innerHTML = message || 'Yakin mau lanjut?';
+    if (detail) { detailEl.textContent = detail; detailWrap.classList.remove('hidden'); }
+    else { detailWrap.classList.add('hidden'); }
+    okBtn.textContent = okText || cfg.okText;
+    cancelBtn.textContent = cancelText || 'Batal';
+    pending = { onOk, onCancel };
+    modal.style.opacity = '1';
+    modal.classList.remove('pointer-events-none');
+    panel.style.transform = 'translateY(0)';
+    setTimeout(() => okBtn.focus(), 50);
+  }
+  function hide(cancelled) {
+    modal.style.opacity = '0';
+    modal.classList.add('pointer-events-none');
+    panel.style.transform = '';
+    const p = pending; pending = null;
+    if (p && cancelled && p.onCancel) p.onCancel();
+  }
+  okBtn.addEventListener('click', () => {
+    const p = pending; pending = null;
+    modal.style.opacity = '0';
+    modal.classList.add('pointer-events-none');
+    if (p && p.onOk) p.onOk();
+  });
+  cancelBtn.addEventListener('click', () => hide(true));
+  backdrop.addEventListener('click', () => hide(true));
+  document.addEventListener('keydown', e => {
+    if (modal.style.opacity === '1') {
+      if (e.key === 'Escape') hide(true);
+      else if (e.key === 'Enter') okBtn.click();
+    }
+  });
+  window.__confirm = show;
+
+  function interpolateForm(template, form) {
+    if (!template || !form) return template;
+    return template.replace(/\{field:([\w-]+)\}/g, (_, name) => {
+      const inp = form.elements && form.elements[name];
+      if (!inp) return '';
+      const v = (inp.value || '').toString();
+      const div = document.createElement('div');
+      div.textContent = v;
+      return div.innerHTML;
+    });
+  }
+  function readAttrs(el, form) {
+    const f = form || (el instanceof HTMLFormElement ? el : null);
+    return {
+      message: interpolateForm(el.getAttribute('data-confirm'), f),
+      title: el.getAttribute('data-confirm-title'),
+      detail: interpolateForm(el.getAttribute('data-confirm-detail'), f),
+      variant: el.getAttribute('data-confirm-variant'),
+      okText: el.getAttribute('data-confirm-ok'),
+      cancelText: el.getAttribute('data-confirm-cancel'),
+    };
+  }
+
+  document.addEventListener('submit', function(e){
+    const f = e.target;
+    if (!(f instanceof HTMLFormElement)) return;
+    if (!f.hasAttribute('data-confirm')) return;
+    if (f.dataset.__confirmed) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    show(readAttrs(f),
+      () => { f.dataset.__confirmed = '1'; f.requestSubmit ? f.requestSubmit() : f.submit(); },
+      null);
+  }, true);
+
+  document.addEventListener('click', function(e){
+    const a = e.target.closest('a[data-confirm]');
+    if (!a) return;
+    if (a.dataset.__confirmed) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const attrs = readAttrs(a);
+    show(attrs,
+      () => {
+        a.dataset.__confirmed = '1';
+        if (window.__loader) window.__loader.show('Memproses…');
+        requestAnimationFrame(() => requestAnimationFrame(() => { window.location.href = a.href; }));
+      },
+      null);
+  }, true);
+})();
+
+(function(){
+  const loader = document.getElementById('page-loader');
+  const msg = document.getElementById('page-loader-msg');
+  if (!loader) return;
+  let timer = null;
+
+  function show(text) {
+    if (text) msg.textContent = text;
+    loader.style.transition = 'none';
+    loader.style.opacity = '1';
+    loader.classList.remove('pointer-events-none');
+  }
+  function hide() {
+    loader.style.transition = 'opacity 150ms ease';
+    loader.style.opacity = '0';
+    loader.classList.add('pointer-events-none');
+    if (timer) { clearTimeout(timer); timer = null; }
+  }
+  window.__loader = { show, hide };
+
+  window.addEventListener('pageshow', hide);
+  document.addEventListener('DOMContentLoaded', hide);
+
+  function describe(actionUrl, method) {
+    const u = (actionUrl || '').toLowerCase();
+    if (u.includes('/login/request-otp')) return 'Mengirim OTP…';
+    if (u.includes('/login/submit-otp')) return 'Verifikasi OTP…';
+    if (u.includes('/purchase/family-loop')) return 'Memulai bulk purchase…';
+    if (u.startsWith('/purchase/')) return 'Memproses pembelian…';
+    if (u.includes('/family-plan')) return 'Memproses family plan…';
+    if (u.includes('/circle')) return 'Memproses Circle…';
+    if (u.includes('/bookmark')) return 'Update bookmark…';
+    if (u.includes('/unsubscribe')) return 'Unsubscribe paket…';
+    if (u.includes('/accounts/activate')) return 'Mengganti akun…';
+    if (u.includes('/accounts/remove')) return 'Menghapus akun…';
+    if (u.includes('/register')) return 'Memproses register…';
+    if (u.includes('/validate')) return 'Memvalidasi…';
+    if (method === 'get' || method === 'GET') return 'Memuat…';
+    return 'Memproses…';
+  }
+
+  function paintThen(cb) {
+    requestAnimationFrame(() => requestAnimationFrame(cb));
+  }
+
+  document.addEventListener('submit', function(e){
+    const f = e.target;
+    if (!(f instanceof HTMLFormElement)) return;
+    if (f.dataset.noLoader) return;
+    if (f.target === '_blank') return;
+    if (f.dataset.__submitting) return;
+    e.preventDefault();
+    f.dataset.__submitting = '1';
+    const action = f.getAttribute('action') || location.pathname;
+    show(describe(action, (f.method || 'GET').toUpperCase()));
+    paintThen(() => { try { f.submit(); } catch (_) { f.dataset.__submitting = ''; hide(); } });
+  }, true);
+
+  const SLOW_PREFIXES = ['/packages/', '/hot', '/transactions', '/notifications',
+                         '/family-plan', '/circle', '/store/', '/bookmark',
+                         '/purchase/', '/accounts'];
+  document.addEventListener('click', function(e){
+    const a = e.target.closest('a');
+    if (!a) return;
+    if (a.target === '_blank' || a.hasAttribute('download') || a.dataset.noLoader) return;
+    const href = a.getAttribute('href') || '';
+    if (!href || href.startsWith('#') || href.startsWith('javascript:') || /^https?:\/\//i.test(href)) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (SLOW_PREFIXES.some(p => href.startsWith(p))) {
+      e.preventDefault();
+      show(describe(href, 'GET'));
+      paintThen(() => { location.href = a.href; });
+    }
+  });
+
+  window.addEventListener('beforeunload', () => {});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Login · myengsel{% endblock %}
+{% block content %}
+<div class="max-w-md mx-auto antialiased p-4">
+
+  {# --- Header --- #}
+  <div class="text-center mb-10 mt-4 group">
+    <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+      <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    </div>
+    <h1 class="text-2xl font-black text-slate-900 tracking-tight">myengsel</h1>
+    <p class="text-[12px] text-slate-400 mt-2 font-medium">WebUI untuk akun MyXL — login menggunakan nomor Anda</p>
+  </div>
+
+  {# --- Tab Switcher --- #}
+  {% set active_tab = (tab or 'login') %}
+  <div class="flex gap-1 bg-slate-100 rounded-2xl p-1 mb-6 shadow-inner">
+    {% for t in [('login','Login'),('register','Register'),('saved','Tersimpan')] %}
+    <a href="?tab={{ t[0] }}{% if phone and t[0]=='login' %}&phone={{ phone }}{% endif %}"
+       class="flex-1 text-center py-2.5 rounded-xl text-[11px] font-bold tracking-wide transition-all duration-300 {% if active_tab == t[0] %}bg-white text-black shadow-sm border border-slate-200{% else %}text-slate-400 hover:text-black{% endif %}"
+       data-no-loader>{{ t[1] }}</a>
+    {% endfor %}
+  </div>
+
+  {% if error %}<div class="mb-4 p-4 bg-red-50 border border-red-100 text-red-600 text-xs rounded-2xl text-center font-bold">{{ error }}</div>{% endif %}
+  {% if info %}<div class="mb-4 p-4 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs rounded-2xl text-center font-bold">{{ info }}</div>{% endif %}
+
+  {# ====== TAB: LOGIN ====== #}
+  {% if active_tab == 'login' %}
+  <div class="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+    {% if not pending_otp %}
+    <div class="mb-6">
+      <h2 class="text-lg font-bold text-black tracking-tight">Login dengan OTP</h2>
+      <p class="text-[12px] text-slate-400 mt-1">Masukkan nomor XL Anda untuk menerima SMS OTP.</p>
+    </div>
+    
+    <form action="/login/request-otp" method="post" class="space-y-4">
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2">Nomor XL</label>
+        <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-4 text-sm text-black focus:border-black outline-none transition-all font-mono" type="text" name="phone" value="{{ phone or '' }}" placeholder="6281234567890" required pattern="628\d{7,11}" autofocus>
+      </div>
+      <button class="w-full bg-black hover:bg-slate-800 text-white py-4 rounded-2xl text-[12px] font-bold uppercase tracking-widest transition-all active:scale-[0.98]" type="submit">Kirim OTP</button>
+    </form>
+    
+    {% else %}
+    <div class="mb-6">
+      <h2 class="text-lg font-bold text-black">Verifikasi OTP</h2>
+      <p class="text-[12px] text-slate-400 mt-1">Masukkan kode 6 digit yang dikirim ke <span class="font-bold text-black">{{ phone }}</span>.</p>
+    </div>
+    
+    <form action="/login/submit-otp" method="post" class="space-y-4">
+      <input type="hidden" name="phone" value="{{ phone }}">
+      <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl py-5 text-center text-3xl tracking-[0.5em] font-black text-black outline-none focus:border-black transition-all" type="text" name="otp" maxlength="6" pattern="\d{6}" placeholder="000000" required autofocus>
+      <button class="w-full bg-black hover:bg-slate-800 text-white py-4 rounded-2xl text-[12px] font-bold uppercase tracking-widest transition-all active:scale-[0.98]" type="submit">Verifikasi & Login</button>
+    </form>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {# ====== TAB: REGISTER ====== #}
+  {% if active_tab == 'register' %}
+  <div class="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+    <div class="mb-6">
+      <h2 class="text-lg font-bold text-black">Registrasi Kartu</h2>
+      <p class="text-[12px] text-slate-400 mt-1">Daftarkan nomor baru menggunakan NIK & KK.</p>
+    </div>
+    
+    <form action="/register" method="post" class="space-y-4">
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2">Nomor SIM XL</label>
+        <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black outline-none font-mono" name="msisdn" pattern="628\d{7,11}" required placeholder="6281234567890">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2">NIK (16 Digit)</label>
+        <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black outline-none font-mono" name="nik" pattern="\d{16}" required maxlength="16" placeholder="Masukkan 16 digit NIK">
+      </div>
+      <div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1 mb-2">No. KK (16 Digit)</label>
+        <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black outline-none font-mono" name="kk" pattern="\d{16}" required maxlength="16" placeholder="Masukkan 16 digit KK">
+      </div>
+      <button class="w-full bg-black hover:bg-slate-800 text-white py-4 rounded-2xl text-[12px] font-bold uppercase tracking-widest transition-all active:scale-[0.98] mt-2" type="submit">Daftarkan Kartu</button>
+    </form>
+  </div>
+  {% endif %}
+
+  {# ====== TAB: SAVED ACCOUNTS ====== #}
+  {% if active_tab == 'saved' %}
+  <div class="bg-white border border-slate-100 rounded-[32px] p-6 shadow-sm">
+    <div class="mb-6">
+      <h2 class="text-lg font-bold text-black">Akun Tersimpan</h2>
+      <p class="text-[12px] text-slate-400 mt-1">Daftar akun yang pernah diakses.</p>
+    </div>
+
+    {% if not saved_accounts %}
+    <div class="text-center py-10 text-slate-400">
+      <svg class="w-12 h-12 mx-auto mb-4 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      <p class="text-[12px] font-bold">Belum ada akun.</p>
+    </div>
+    {% else %}
+    <div class="space-y-3">
+      {% for u in saved_accounts %}
+      <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+        <div>
+          <div class="font-mono text-sm font-bold text-black">{{ u.number }}</div>
+          <div class="text-[9px] font-bold uppercase text-slate-400">{{ u.subscription_type }}</div>
+        </div>
+        <div class="flex gap-2">
+          {% if current_active and u.number == current_active.number %}
+            <span class="px-3 py-1.5 bg-black text-white text-[10px] font-bold rounded-lg">AKTIF</span>
+          {% else %}
+            <form action="/accounts/activate" method="post">
+              <input type="hidden" name="number" value="{{ u.number }}">
+              <button class="px-3 py-1.5 bg-white border border-slate-200 text-black text-[10px] font-bold rounded-lg shadow-sm" type="submit">AKTIFKAN</button>
+            </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

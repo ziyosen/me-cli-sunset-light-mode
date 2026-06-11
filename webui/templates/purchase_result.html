@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · myengsel{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4">
+  <h1 class="text-xl font-black text-slate-900 mb-8 tracking-tight pl-1">{{ title }}</h1>
+
+  {% if qris_img %}
+  <div class="bg-white border border-slate-100 rounded-[32px] p-8 mb-6 text-center shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
+    <div class="bg-slate-50 p-4 rounded-2xl inline-block border border-slate-100">
+      <img src="{{ qris_img }}" alt="QRIS" class="w-full max-w-[280px] h-auto rounded-xl">
+    </div>
+    <p class="text-[11px] font-bold text-slate-400 mt-6 uppercase tracking-widest">Scan QRIS melalui aplikasi perbankan atau dompet digital Anda</p>
+    
+    {% if result.qr_code %}
+    <details class="mt-6 text-left group">
+      <summary class="cursor-pointer text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-black transition-colors list-none text-center">
+        Lihat Raw QR String
+      </summary>
+      <div class="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 overflow-x-auto">
+        <code class="text-[9px] text-slate-500 font-mono break-all">{{ result.qr_code }}</code>
+      </div>
+    </details>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% if result %}
+    {% if result.status == "SUCCESS" or (result.qr_code is defined) %}
+      <div class="flex items-center gap-3 bg-slate-50 border border-slate-100 text-slate-900 px-6 py-4 rounded-2xl mb-6 text-xs font-bold">
+        <svg class="w-4 h-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <span>Transaksi berhasil diproses</span>
+      </div>
+    {% else %}
+      <div class="flex items-center gap-3 bg-slate-50 border border-slate-100 text-slate-900 px-6 py-4 rounded-2xl mb-6 text-xs font-bold">
+        <svg class="w-4 h-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <span>Status: {{ result.status or 'Unknown' }}</span>
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <div class="bg-white border border-slate-100 rounded-[32px] p-8 mb-6 shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
+    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Informasi Detail</h2>
+    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 overflow-x-auto">
+      <pre class="text-[10px] text-slate-500 font-mono">{{ result | tojson(indent=2) }}</pre>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-3">
+    <a class="flex items-center justify-center py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-slate-100 hover:bg-slate-200 text-slate-900 transition-all" href="/">Beranda</a>
+    <a class="flex items-center justify-center py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest bg-slate-900 hover:bg-black text-white transition-all" href="/transactions">Riwayat</a>
+  </div>
+</div>
+
+<div class="pb-24"></div>
+{% endblock %}

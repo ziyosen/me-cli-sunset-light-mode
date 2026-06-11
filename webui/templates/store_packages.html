@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Store Packages · myengsel{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pl-1">
+  <div>
+    <h1 class="text-xl font-black tracking-tight text-slate-900">🛒 Store Packages</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Jelajahi dan cari pilihan paket internet terbaik yang tersedia.</p>
+  </div>
+  
+  <form method="get" class="shrink-0">
+    <label class="inline-flex items-center gap-3 cursor-pointer select-none group">
+      <div class="relative w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full transition-colors duration-200 overflow-hidden shadow-inner">
+        <input type="checkbox" name="enterprise" value="true" {% if enterprise %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+        <div class="absolute inset-0 bg-slate-200 peer-checked:bg-slate-900 transition-colors duration-200"></div>
+        <div class="absolute top-0.5 left-0.5 bg-white border border-slate-200/40 rounded-full h-5 w-5 transition-transform duration-200 ease-out shadow-[0_2px_4px_rgba(0,0,0,0.1)] peer-checked:translate-x-5"></div>
+      </div>
+      <span class="text-xs font-black tracking-wide text-slate-500 peer-checked:text-slate-900 group-hover:text-slate-800 transition-colors">Enterprise Mode</span>
+    </label>
+  </form>
+</div>
+
+<form method="get" class="mb-6 flex gap-2">
+  {% if enterprise %}<input type="hidden" name="enterprise" value="true">{% endif %}
+  <div class="relative flex-1 flex items-center">
+    <span class="absolute left-3.5 text-slate-400 text-xs pointer-events-none">🔍</span>
+    <input type="text" name="q" value="{{ q }}" placeholder="Cari nama paket atau kategori family..." class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-xs font-bold text-slate-800 placeholder-slate-300 focus:outline-none focus:bg-white focus:border-slate-900 transition-all shadow-inner">
+  </div>
+  <button class="bg-slate-900 hover:bg-black text-white px-5 rounded-xl text-xs font-black tracking-wide transition-all active:scale-95 shadow-sm" type="submit">
+    Cari
+  </button>
+</form>
+
+<div class="text-[10px] font-black tracking-wider text-slate-400 uppercase mb-3 pl-1">
+  {{ packages | length }} Paket Ditemukan {% if q %} untuk "{{ q }}"{% endif %}
+</div>
+
+{% if not packages %}
+<div class="bg-white border border-slate-200 rounded-[24px] p-8 text-slate-400 text-sm text-center shadow-[0_4px_16px_rgba(0,0,0,0.01)]">
+  <div class="text-3xl mb-2">🫥</div>
+  <p class="font-bold text-slate-800">Tidak ada paket yang cocok atau tersedia saat ini.</p>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+{% for p in packages %}
+{% if p.href %}
+<a href="{{ p.href }}" class="bg-white border border-slate-200/80 rounded-[20px] p-4 flex flex-col justify-between min-h-[140px] shadow-[0_2px_8px_rgba(0,0,0,0.01)] transition-all duration-200 hover:border-slate-400 hover:shadow-[0_4px_18px_rgba(0,0,0,0.02)] active:scale-[0.99] group">
+{% else %}
+<div class="bg-slate-50/60 border border-slate-200/40 rounded-[20px] p-4 flex flex-col justify-between min-h-[140px] opacity-60 select-none cursor-not-allowed">
+{% endif %}
+  
+  <div class="space-y-1">
+    {% if p.family_name %}
+    <div class="text-[10px] font-black tracking-wider text-slate-400 uppercase truncate">{{ p.family_name }}</div>
+    {% endif %}
+    
+    <div class="font-black text-sm text-slate-900 tracking-tight leading-snug line-clamp-2 group-hover:text-black transition-colors" title="{{ p.title }}">
+      {{ p.title }}
+    </div>
+  </div>
+  
+  <div class="flex items-end justify-between gap-3 mt-5 pt-3 border-t border-slate-100">
+    <div>
+      <div class="font-mono font-black text-sm text-slate-900">{{ p.price | rp }}</div>
+      {% if p.has_discount %}
+      <div class="font-mono text-[10px] text-slate-400 line-through mt-0.5">{{ p.original_price | rp }}</div>
+      {% endif %}
+    </div>
+    
+    {% if p.validity %}
+    <div class="text-[10px] font-bold text-slate-500 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-0.5 shadow-inner">
+      ⏱ {{ p.validity }}
+    </div>
+    {% endif %}
+  </div>
+
+{% if p.href %}</a>{% else %}</div>{% endif %}
+{% endfor %}
+</div>
+
+<div class="pb-24"></div>
+
+{% endblock %}

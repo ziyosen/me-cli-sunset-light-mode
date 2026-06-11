@@ -1,0 +1,83 @@
+[
+    {
+        "display_name": "Games 15GB RP 7500",
+        "family_name": "Kuota Aplikasi Xtra Combo Plus 15GB",
+        "family_code": "45c3a622-8c06-4bb1-8e56-bba1f3434600",
+        "is_enterprise": false,
+        "overwrite_amount": 7500,
+        "variant_name": "Bonus Xtra Combo Plus 15GB",
+        "option_name": "Games",
+        "order": 1
+    },
+    {
+        "display_name": "Social Media 15GB RP 7500",
+        "family_name": "Kuota Aplikasi Xtra Combo Plus 15GB",
+        "family_code": "45c3a622-8c06-4bb1-8e56-bba1f3434600",
+        "is_enterprise": false,
+        "overwrite_amount": 7500,
+        "variant_name": "Bonus Xtra Combo Plus 15GB",
+        "option_name": "Social Media",
+        "order": 2
+    },
+    {
+        "display_name": "Streaming 15GB RP 5000",
+        "family_name": "Kuota Aplikasi Xtra Combo Plus 15GB",
+        "family_code": "45c3a622-8c06-4bb1-8e56-bba1f3434600",
+        "is_enterprise": false,
+        "overwrite_amount": 5000,
+        "variant_name": "Bonus Xtra Combo Plus 15GB",
+        "option_name": "Streaming",
+        "order": 3
+    },
+    {
+        "display_name": "WhatsApp 15GB RP 5000",
+        "family_name": "Kuota Aplikasi Xtra Combo Plus 15GB",
+        "family_code": "45c3a622-8c06-4bb1-8e56-bba1f3434600",
+        "is_enterprise": false,
+        "overwrite_amount": 5000,
+        "variant_name": "Bonus Xtra Combo Plus 15GB",
+        "option_name": "WhatsApp",
+        "order": 4
+    },
+    {
+        "display_name": "Instagram 15GB RP 5000",
+        "family_name": "Kuota Aplikasi Xtra Combo Plus 15GB",
+        "family_code": "45c3a622-8c06-4bb1-8e56-bba1f3434600",
+        "is_enterprise": false,
+        "overwrite_amount": 5000,
+        "overwrite_amount": 5000,
+        "variant_name": "Bonus Xtra Combo Plus 15GB",
+        "option_name": "Instagram",
+        "order": 5
+    },
+    {
+        "display_name": "Facebook 15GB RP 5000",
+        "family_name": "Kuota Aplikasi Xtra Combo Plus 15GB",
+        "family_code": "45c3a622-8c06-4bb1-8e56-bba1f3434600",
+        "is_enterprise": false,
+        "overwrite_amount": 5000,
+        "variant_name": "Bonus Xtra Combo Plus 15GB",
+        "option_name": "Facebook",
+        "order": 6
+    },
+    {
+        "display_name": "Youtube 15GB RP 5000",
+        "family_name": "Kuota Aplikasi Xtra Combo Plus 15GB",
+        "family_code": "45c3a622-8c06-4bb1-8e56-bba1f3434600",
+        "is_enterprise": false,
+        "overwrite_amount": 5000,
+        "variant_name": "Bonus Xtra Combo Plus 15GB",
+        "option_name": "YouTube",
+        "order": 7
+    },
+    {
+        "display_name": "Tiktok 15GB RP 5000",
+        "family_name": "Kuota Aplikasi Xtra Combo Plus 15GB",
+        "family_code": "45c3a622-8c06-4bb1-8e56-bba1f3434600",
+        "is_enterprise": false,
+        "overwrite_amount": 5000,
+        "variant_name": "Bonus Xtra Combo Plus 15GB",
+        "option_name": "TikTok",
+        "order": 8
+    }
+]

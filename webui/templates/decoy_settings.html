@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Decoy Settings · myengsel{% endblock %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto p-4 md:p-6">
+  {# --- Header --- #}
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-3xl font-extrabold text-black tracking-tight">Decoy Settings</h1>
+      <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-[0.2em] mt-1">Manajemen paket dummy transaksi</p>
+    </div>
+    <a href="/settings/decoy" class="text-[10px] font-bold text-slate-400 hover:text-black uppercase transition-colors">Refresh ↻</a>
+  </div>
+
+  {% if msg %}
+    <div class="mb-6 p-4 rounded-2xl bg-slate-100 text-slate-600 text-xs font-semibold">✅ {{ msg }}</div>
+  {% endif %}
+
+  {# --- Info Card --- #}
+  <div class="mb-10 p-6 rounded-3xl bg-slate-50 border border-slate-100">
+    <p class="font-bold text-black text-sm mb-2">📖 Apa itu Decoy?</p>
+    <p class="text-[12px] text-slate-500 leading-relaxed">
+      Paket dummy untuk membuat transaksi terlihat natural. <b>Default</b> untuk PREPAID, <b>Prio</b> untuk akun PRIORITAS. 
+      <span class="text-black mt-2 block"><b>⚠️ Penting:</b> Selalu gunakan <b>Test Fetch</b> untuk memastikan kode paket masih valid.</span>
+    </p>
+  </div>
+
+{# Macro: Form Fields #}
+{% macro decoy_fields(d, include_base_method=False) %}
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+  <div class="sm:col-span-2">
+    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Family Name</label>
+    <input class="w-full mt-1 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black focus:border-black outline-none transition-all" name="family_name" value="{{ d.family_name or '' }}" placeholder="XL PASS">
+  </div>
+  <div class="sm:col-span-2">
+    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Family Code (UUID)</label>
+    <input class="w-full mt-1 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black font-mono" name="family_code" value="{{ d.family_code or '' }}" required>
+  </div>
+  <div class="sm:col-span-2">
+    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Variant Code (UUID)</label>
+    <input class="w-full mt-1 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black font-mono" name="variant_code" value="{{ d.variant_code or '' }}" required>
+  </div>
+  <div>
+    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Price (Rp)</label>
+    <input class="w-full mt-1 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black" type="number" name="price" value="{{ d.price or 0 }}" required>
+  </div>
+  <div>
+    <label class="text-[9px] font-bold text-slate-400 uppercase ml-1">Migration Type</label>
+    <select class="w-full mt-1 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black" name="migration_type">
+      {% for opt in ['NONE','PRE_TO_PRIOH','PRIOH_TO_PRIO','PRIO_TO_PRIOH'] %}
+        <option value="{{ opt }}" {% if (d.migration_type or 'NONE') == opt %}selected{% endif %}>{{ opt }}</option>
+      {% endfor %}
+    </select>
+  </div>
+</div>
+{% endmacro %}
+
+{# Macro: Editor #}
+{% macro decoy_editor(d, kind, key, include_base_method=False, label='') %}
+{% set tab_id = 'tab-' ~ kind ~ '-' ~ key %}
+<div class="mt-6 border-t border-slate-100 pt-6">
+  <div class="flex items-center gap-2 mb-6">
+    <button type="button" data-tab="form" data-target="{{ tab_id }}" class="tab-btn px-5 py-2 rounded-2xl text-[10px] font-bold uppercase bg-black text-white transition-all">Form</button>
+    <button type="button" data-tab="json" data-target="{{ tab_id }}" class="tab-btn px-5 py-2 rounded-2xl text-[10px] font-bold uppercase bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all">JSON</button>
+    <button type="button" data-test="{{ kind }}/{{ key }}" data-test-target="test-{{ kind }}-{{ key }}" class="ml-auto px-5 py-2 rounded-2xl text-[10px] font-bold uppercase bg-slate-100 text-black hover:bg-slate-200 transition-all" data-no-loader>Test Fetch</button>
+  </div>
+  <div id="test-{{ kind }}-{{ key }}" class="mb-4 hidden text-xs p-3 rounded-2xl bg-slate-50 text-black font-mono"></div>
+  <div data-pane="form" data-pane-of="{{ tab_id }}">
+    <form action="/settings/decoy/{% if kind == 'builtin' %}builtin{% else %}custom{% endif %}/{{ key }}" method="post">
+      {{ decoy_fields(d, include_base_method=include_base_method) }}
+      <button class="w-full mt-6 py-3 rounded-2xl bg-black text-[11px] font-bold text-white uppercase tracking-widest active:scale-[0.98] transition-all" type="submit">Simpan Perubahan</button>
+    </form>
+  </div>
+  <div data-pane="json" data-pane-of="{{ tab_id }}" class="hidden">
+    <form action="/settings/decoy/raw/{{ kind }}/{{ key }}" method="post">
+      <textarea name="raw_json" rows="8" class="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-[11px] font-mono text-black">{{ d | tojson(indent=4) }}</textarea>
+      <button class="w-full mt-4 py-3 rounded-2xl bg-black text-[11px] font-bold text-white uppercase tracking-widest active:scale-[0.98] transition-all" type="submit">Simpan JSON</button>
+    </form>
+  </div>
+</div>
+{% endmacro %}
+
+<h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Decoy Bawaan</h2>
+<div class="space-y-4 mb-10">
+{% for b in builtins %}
+<details class="group p-6 rounded-3xl bg-white border border-slate-100 shadow-sm cursor-pointer transition-all">
+  <summary class="list-none flex justify-between items-center font-bold text-sm text-black">
+    {{ b.label }}
+    <span class="text-[10px] text-slate-400 group-open:text-black transition-all">EDIT ▼</span>
+  </summary>
+  {{ decoy_editor(b.data, 'builtin', b.key, include_base_method=False, label=b.label) }}
+</details>
+{% endfor %}
+</div>
+
+<h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Custom Decoy</h2>
+<div class="space-y-4 mb-10">
+{% for c in customs %}
+<details class="group p-6 rounded-3xl bg-white border border-slate-100 shadow-sm cursor-pointer transition-all">
+  <summary class="list-none flex justify-between items-center font-bold text-sm text-black">
+    ⭐ {{ c.name }}
+    <span class="text-[10px] text-slate-400 group-open:text-black transition-all">EDIT ▼</span>
+  </summary>
+  {{ decoy_editor(c.data, 'custom', c.name, include_base_method=True, label='Custom ' ~ c.name) }}
+  <form action="/settings/decoy/custom/{{ c.name }}/delete" method="post" class="mt-4">
+    <button class="w-full py-3 rounded-2xl bg-red-50 text-red-600 text-[10px] font-bold uppercase transition-all" type="submit">Hapus Decoy</button>
+  </form>
+</details>
+{% endfor %}
+</div>
+
+<div class="p-8 rounded-3xl bg-white border border-slate-100 shadow-sm">
+  <h2 class="text-[10px] font-bold text-black uppercase tracking-widest mb-6">+ Tambah Custom Baru</h2>
+  <form action="/settings/decoy/custom/add" method="post">
+    <input class="w-full mb-4 bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-sm text-black" name="name" placeholder="Nama Decoy (e.g., promo-v1)" required>
+    {{ decoy_fields({'order': 1, 'price': 0}, include_base_method=True) }}
+    <button class="w-full mt-6 py-3 rounded-2xl bg-black text-[11px] font-bold text-white uppercase tracking-widest active:scale-[0.98] transition-all" type="submit">Tambah Custom Decoy</button>
+  </form>
+</div>
+
+<script>
+(function(){
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const parent = e.target.closest('details');
+      const id = btn.dataset.target, tab = btn.dataset.tab;
+      parent.querySelectorAll(`[data-pane-of="${id}"]`).forEach(pane => {
+        pane.classList.toggle('hidden', pane.dataset.pane !== tab);
+      });
+      parent.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.toggle('bg-black', b === btn);
+        b.classList.toggle('text-white', b === btn);
+        b.classList.toggle('bg-slate-100', b !== btn);
+        b.classList.toggle('text-slate-500', b !== btn);
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

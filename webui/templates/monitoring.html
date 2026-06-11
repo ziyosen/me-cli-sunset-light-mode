@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}Monitoring · myengsel{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-4 md:p-6">
+  
+  {# --- Notifikasi --- #}
+  {% set msg = request.query_params.get('msg', '') %}
+  {% if msg %}
+  <div class="mb-6 p-4 rounded-2xl bg-slate-100 text-slate-600 text-xs font-semibold">
+    {{ {'refreshed': 'Data berhasil di-refresh.', 'rule_added': 'Rule berhasil ditambahkan.', 'rule_deleted': 'Rule dihapus.', 'ran': 'Monitor run-once selesai.'}[msg] }}
+  </div>
+  {% endif %}
+
+  {# --- Header --- #}
+  <div class="mb-8">
+    <h1 class="text-3xl font-extrabold text-black tracking-tight">Monitoring</h1>
+    <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-[0.2em] mt-1">Sistem Pemantauan Kuota</p>
+  </div>
+
+  {# --- Action Bar --- #}
+  <div class="flex gap-2 mb-8">
+    <form action="/monitoring/refresh" method="post"><button class="px-5 py-2.5 bg-black hover:bg-slate-800 rounded-2xl text-[11px] font-bold text-white transition-all active:scale-95">Refresh</button></form>
+    <form action="/monitoring/run-once" method="post"><button class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 rounded-2xl text-[11px] font-bold text-black transition-all active:scale-95">Run Once</button></form>
+    <a href="/monitoring/telegram" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-2xl text-[11px] font-bold text-black transition-all active:scale-95">Bot Settings</a>
+  </div>
+
+  {# --- Bot Status --- #}
+  <div class="mb-10 p-5 bg-white border border-slate-100 rounded-3xl shadow-sm flex items-center gap-4">
+    <div class="w-12 h-12 flex items-center justify-center bg-slate-50 rounded-2xl text-xl">🤖</div>
+    <div>
+      <div class="text-sm font-bold text-black">Telegram Bot</div>
+      <div class="flex items-center gap-2 mt-0.5">
+        <span class="text-[10px] font-bold {% if tg_global.get('enabled') %}text-emerald-600{% else %}text-slate-400{% endif %} uppercase">{{ 'Aktif' if tg_global.get('enabled') else 'Nonaktif' }}</span>
+        {% if tg.get('chat_id') %}<span class="text-[10px] font-mono text-slate-400">| ID: {{ tg.chat_id }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# --- Status Akun --- #}
+  <section class="mb-10">
+    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Status Akun</h2>
+    {% if cache %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for msisdn, data in cache.items() %}
+      <div class="p-6 bg-white border border-slate-100 rounded-3xl shadow-sm">
+        <div class="flex justify-between items-center mb-6">
+          <div class="font-mono font-bold text-sm text-black">{{ msisdn }}</div>
+          <div class="text-[10px] text-slate-400">{{ data.updated_at | ts }}</div>
+        </div>
+        
+        {% if data.balance %}
+        <div class="mb-6 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+          <div class="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Pulsa</div>
+          <div class="font-black text-black mt-1">{{ data.balance.remaining | rp }}</div>
+        </div>
+        {% endif %}
+
+        {% for q in data.quotas[:6] %}
+        <div class="mb-4">
+          <div class="text-[11px] font-bold text-slate-800 mb-2">{{ q.name }}</div>
+          {% for b in (q.benefits or [])[:3] %}
+          {% set pct = ((b.remaining / b.total) * 100) if b.total else 0 %}
+          <div class="space-y-1 mb-2">
+            <div class="flex justify-between text-[9px] text-slate-400 font-bold">
+              <span>{{ b.data_type }}</span>
+              <span>{{ "%.0f"|format(pct) }}%</span>
+            </div>
+            <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+              <div class="h-full rounded-full bg-black" style="width:{{ [pct, 100]|min }}%"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  {# --- Monitoring Rules --- #}
+  <section class="mb-10">
+    <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4 px-2">Monitoring Rules</h2>
+    <div class="space-y-3 mb-6">
+      {% for r in rules %}
+      <div class="p-5 bg-white border border-slate-100 rounded-3xl shadow-sm flex items-center justify-between">
+        <div>
+          <div class="font-bold text-sm text-black">{{ r.name }}</div>
+          <div class="text-[10px] text-slate-400 mt-0.5">{{ r.msisdn }} · {{ r.trigger.metric }} {{ r.trigger.op }} {{ r.trigger.value }}</div>
+        </div>
+        <form action="/monitoring/rules/{{ r.id }}/toggle" method="post" data-no-loader>
+          <button class="px-4 py-1.5 rounded-full text-[10px] font-bold {% if r.enabled %}bg-black text-white{% else %}bg-slate-100 text-slate-500{% endif %} transition-all">
+            {{ 'ON' if r.enabled else 'OFF' }}
+          </button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+
+    <details class="bg-white border border-slate-100 rounded-3xl p-6 shadow-sm">
+      <summary class="cursor-pointer text-[10px] font-black uppercase tracking-widest text-black">Tambah Rule Baru +</summary>
+      <form action="/monitoring/rules" method="post" class="mt-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <input name="name" class="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-xs text-black placeholder:text-slate-400" placeholder="Nama Rule">
+          <select name="msisdn" class="bg-slate-50 border border-slate-100 rounded-2xl px-4 py-3 text-xs text-black">
+            {% for acc in myxl_accounts %}<option value="{{ acc.number }}">{{ acc.number }}</option>{% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="w-full py-3 bg-black rounded-2xl text-[11px] font-bold text-white uppercase tracking-widest">Simpan Rule</button>
+      </form>
+    </details>
+  </section>
+</div>
+{% endblock %}

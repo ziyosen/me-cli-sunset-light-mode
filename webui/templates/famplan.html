@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% block title %}Akrab · myengsel{% endblock %}
+{% block content %}
+
+<div class="max-w-xl mx-auto px-1">
+
+  <div class="flex items-center justify-between mb-6 pl-1">
+    <div>
+      <h1 class="text-xl font-black tracking-tight text-slate-900 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-slate-900">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+        Family Plan
+      </h1>
+      <p class="text-[11px] font-medium text-slate-400 mt-0.5">Kelola kuota bersama dan atur batasan member keluarga Anda.</p>
+    </div>
+    <a href="/family-plan" class="text-[10px] font-black tracking-wide text-slate-500 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/80 px-3 py-2 rounded-xl transition-all shadow-sm active:scale-95">↻ Refresh</a>
+  </div>
+
+  {% if not has_plan %}
+  <div class="bg-white border border-slate-100 rounded-3xl p-8 text-center shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
+    <div class="w-12 h-12 bg-slate-50 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3 border border-slate-100">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 16.318A4.486 4.486 0 0 0 12.016 15a4.486 4.486 0 0 0-3.198 1.318M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z" />
+      </svg>
+    </div>
+    <div class="font-black text-sm text-slate-800 tracking-tight">Bukan Organizer Paket Akrab</div>
+    <div class="text-[11px] text-slate-400 mt-1 max-w-xs mx-auto">Nomor Anda tidak terdaftar sebagai pengelola utama. Silakan periksa detail respons API jika ini keliru.</div>
+    
+    <details class="mt-5 text-left border-t border-slate-100 pt-4 group">
+      <summary class="text-[10px] font-black uppercase tracking-wider cursor-pointer text-slate-400 hover:text-slate-600 list-none flex items-center gap-1 select-none w-max">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 transition-transform duration-200 group-open:rotate-90">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+        Raw response
+      </summary>
+      <pre class="text-[11px] overflow-x-auto bg-slate-50 border border-slate-100 p-3 rounded-xl mt-2 font-mono text-slate-500">{{ data | tojson(indent=2) }}</pre>
+    </details>
+  </div>
+  {% else %}
+
+  <div class="relative overflow-hidden rounded-[32px] mb-6 p-6 bg-white border border-slate-100 shadow-[0_15px_40px_rgba(0,0,0,0.03)]">
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-slate-50 rounded-full blur-3xl opacity-60"></div>
+    <div class="relative z-10">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <div class="text-[10px] font-black tracking-widest text-slate-400 uppercase">Active Plan</div>
+          <div class="text-2xl font-black text-slate-900 mt-0.5 tracking-tight">{{ info.plan_type }}</div>
+          <div class="text-[11px] font-medium text-slate-500 mt-1">Organizer: <span class="font-mono text-slate-800 font-bold">{{ info.parent_msisdn }}</span></div>
+        </div>
+      </div>
+
+      <div class="mt-6 pt-5 border-t border-slate-50">
+        <div class="flex items-baseline justify-between mb-2 text-xs font-semibold">
+          <div class="text-slate-400 flex items-center gap-1.5 font-black text-[10px] uppercase tracking-wider">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v16.5M21 19.5H3.75M6.75 14.25l2.25-2.25 3.75 3.75 4.5-4.5" />
+            </svg>
+            Sisa Kuota Bersama
+          </div>
+          <div class="text-slate-900 font-mono font-black text-sm">{{ info.remaining_quota | bytes }} <span class="text-slate-400 font-medium text-xs">/ {{ info.total_quota | bytes }}</span></div>
+        </div>
+        <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-full bg-slate-900 rounded-full transition-all duration-500" style="width: {{ info.usage_pct }}%"></div>
+        </div>
+        
+        <div class="flex items-center justify-between text-[10px] font-bold mt-2.5">
+          <div class="text-slate-400">Terpakai {{ info.usage_pct }}% dari total kuota group</div>
+          {% if info.end_date_ts %}
+          <div class="text-slate-500 font-medium bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-md flex items-center gap-1 font-mono">
+            <span class="text-[9px] font-sans text-slate-400 font-black uppercase tracking-wider">Masa Aktif:</span>
+            {{ info.end_date_ts | date }}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# Reusable Macro Card Slot Member #}
+  {% macro render_slot(m) %}
+  <div class="bg-white border rounded-2xl p-4 flex flex-col justify-between transition-all duration-200 shadow-[0_4px_12px_rgba(0,0,0,0.01)] {% if m.is_empty %}border-dashed border-slate-200 text-slate-400 bg-transparent shadow-none{% elif m.is_parent %}border-slate-200 bg-slate-50/50{% else %}border-slate-100{% endif %}">
+    
+    <div>
+      <div class="flex items-start justify-between gap-3">
+        <div class="min-w-0">
+          <div class="text-[9px] font-black tracking-widest text-slate-400 uppercase flex items-center gap-1">
+            Slot #{{ m.idx }}{% if m.member_type %} · {{ m.member_type }}{% endif %}{% if m.is_additional %} · <span class="text-slate-900 font-black">EXTRA</span>{% endif %}
+          </div>
+          
+          {% if m.is_empty %}
+          <div class="font-black text-xs text-slate-300 mt-2.5 flex items-center gap-1.5 select-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-slate-300">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+            Slot Kosong
+          </div>
+          {% else %}
+          <div class="font-black font-mono text-sm text-slate-900 tracking-tight mt-1.5">{{ m.msisdn }}</div>
+          {% if m.alias %}<div class="text-[11px] font-bold text-slate-500 mt-0.5">{{ m.alias }}</div>{% endif %}
+          {% endif %}
+        </div>
+        
+        {% if not m.is_empty and not m.is_parent %}
+        <div class="text-[9px] font-mono font-bold text-slate-400 text-right shrink-0 space-y-1">
+          {% if m.add_chances or m.total_add_chances %}
+          <div class="bg-slate-50 px-2 py-0.5 rounded border border-slate-100 inline-block text-slate-500">Sisa Ubah: {{ m.add_chances }}/{{ m.total_add_chances }}</div>
+          {% endif %}
+          {% if m.exp_ts %}<div class="text-slate-400 font-sans">Exp: {{ m.exp_ts | date }}</div>{% endif %}
+        </div>
+        {% endif %}
+      </div>
+
+      {% if not m.is_empty and m.quota_allocated %}
+      <div class="mt-4">
+        <div class="flex items-baseline justify-between text-[10px] mb-1 font-bold">
+          <span class="text-slate-400 uppercase tracking-wider">Kuota Terpakai</span>
+          <span class="font-mono text-slate-700 font-black">{{ m.quota_used | bytes }} / {{ m.quota_allocated | bytes }}</span>
+        </div>
+        <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+          <div class="h-full rounded-full bg-slate-900" style="width: {{ m.quota_pct }}%"></div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="mt-4 pt-3 border-t border-slate-100/70">
+      {% if m.is_empty %}
+      <details class="group/form">
+        <summary class="cursor-pointer text-xs font-black tracking-tight text-slate-800 hover:text-black list-none flex items-center gap-1 select-none w-max">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 text-slate-400 transition-transform duration-200 group-open/form:rotate-90">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+          </svg>
+          Tambah Member Baru
+        </summary>
+        
+        <form action="/family-plan/change-member" method="post" class="mt-3 space-y-3"
+              data-confirm="MSISDN <span class='font-mono text-slate-900 font-bold'>{field:new_msisdn}</span> akan ditambahkan ke slot #{{ m.idx }} sebagai <b>{field:alias}</b>."
+              data-confirm-title="Tambah Member?"
+              data-confirm-variant="primary"
+              data-confirm-ok="Tambah">
+          <input type="hidden" name="slot_id" value="{{ m.slot_id }}">
+          <input type="hidden" name="family_member_id" value="{{ m.family_member_id }}">
+          
+          <div>
+            <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">MSISDN Baru (628xxx)</label>
+            <input class="w-full bg-slate-50 border border-slate-200/60 rounded-xl px-3 py-2 text-xs font-mono text-slate-800 placeholder-slate-300 focus:outline-none focus:border-slate-900 transition-all" name="new_msisdn" pattern="628\d{7,11}" placeholder="62812345678" required>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Alias Anda (Parent)</label>
+              <input class="w-full bg-slate-50 border border-slate-200/60 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-slate-900 transition-all" name="parent_alias" placeholder="Contoh: Ayah" required>
+            </div>
+            <div>
+              <label class="block text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Alias Member Baru</label>
+              <input class="w-full bg-slate-50 border border-slate-200/60 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-slate-900 transition-all" name="alias" placeholder="Contoh: Kakak" required>
+            </div>
+          </div>
+          <button class="w-full bg-slate-900 hover:bg-black text-white py-2 rounded-xl text-xs font-black tracking-wide transition-all shadow-sm active:scale-95" type="submit">Tambah ke Slot {{ m.idx }}</button>
+        </form>
+      </details>
+      
+      {% elif not m.is_parent %}
+      <div class="flex items-center gap-2">
+        <details class="flex-1 min-w-0 group/quota">
+          <summary class="cursor-pointer text-[11px] font-black tracking-tight text-slate-600 hover:text-slate-900 list-none flex items-center gap-1 select-none">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 text-slate-400 transition-transform duration-200 group-open/quota:rotate-90">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+            </svg>
+            Set Batas Kuota
+          </summary>
+          <form action="/family-plan/set-quota" method="post" class="mt-2.5 flex gap-1.5"
+                data-confirm="Set batas kuota slot #{{ m.idx }} ({{ m.msisdn }}) menjadi <b>{field:new_allocation_mb} MB</b>."
+                data-confirm-title="Set Quota Member?"
+                data-confirm-variant="primary"
+                data-confirm-ok="Set">
+            <input type="hidden" name="family_member_id" value="{{ m.family_member_id }}">
+            <input type="hidden" name="original_allocation" value="{{ m.quota_allocated }}">
+            <input class="flex-1 bg-slate-50 border border-slate-200/60 rounded-xl px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-slate-900 transition-all" type="number" name="new_allocation_mb" placeholder="MB" min="0" required>
+            <button class="bg-slate-900 hover:bg-black text-white rounded-xl px-3 text-xs font-black transition-all active:scale-95" type="submit">Set</button>
+          </form>
+        </details>
+        
+        <form action="/family-plan/remove-member" method="post" class="shrink-0">
+          <input type="hidden" name="family_member_id" value="{{ m.family_member_id }}">
+          <button class="bg-white hover:bg-red-50 text-slate-400 hover:text-red-600 border border-slate-200 hover:border-red-100 rounded-xl px-3 py-1.5 text-xs font-black transition-all active:scale-95" 
+                  type="submit"
+                  data-confirm="Member <span class='font-mono text-red-600 font-bold'>{{ m.msisdn }}</span> akan dikeluarkan dari paket keluarga slot #{{ m.idx }}. Alokasi kuota juga akan di-reset."
+                  data-confirm-title="Keluarkan Member?"
+                  data-confirm-variant="danger"
+                  data-confirm-ok="Keluarkan">
+            Hapus
+          </button>
+        </form>
+      </div>
+      {% else %}
+      <div class="text-[10px] font-black text-slate-700 bg-slate-100 border border-slate-200/40 px-2.5 py-1 rounded-lg inline-flex items-center gap-1 select-none uppercase tracking-wider">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 text-slate-500">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499c.172-.436.745-.436.917 0a.75.75 0 0 1-.512.94l-2.22c.421-.059.819.166 1.006.55l.957 1.954a.75.75 0 0 1-.686 1.085H5.48a.75.75 0 0 1-.686-1.085l.957-1.954c.187-.384.585-.609 1.006-.55l-2.22-.94a.75.75 0 0 1 .916 0ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+        </svg>
+        Parent Organizer
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endmacro %}
+
+  <h2 class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-3 pl-1 flex items-center justify-between">
+    <span class="flex items-center gap-1.5">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+      </svg>
+      Slot Reguler ({{ members | rejectattr('is_empty') | list | length }}/{{ members | length }} Terisi)
+    </span>
+    {% if info.total_regular_slot %}<span class="text-[9px] text-slate-400 lowercase font-mono">maks: {{ info.total_regular_slot }}</span>{% endif %}
+  </h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+    {% for m in members %}{{ render_slot(m) }}{% endfor %}
+  </div>
+
+  {% if additional %}
+  <h2 class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-3 pl-1 flex items-center justify-between">
+    <span class="flex items-center gap-1.5">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499c.172-.436.745-.436.917 0a.75.75 0 0 1-.512.94l-2.22c.421-.059.819.166 1.006.55l.957 1.954a.75.75 0 0 1-.686 1.085H5.48a.75.75 0 0 1-.686-1.085l.957-1.954c.187-.384.585-.609 1.006-.55l-2.22-.94a.75.75 0 0 1 .916 0ZM21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+      Slot Tambahan — {{ additional | rejectattr('is_empty') | list | length }}/{{ additional | length }}
+    </span>
+    {% if info.total_paid_slot %}<span class="text-[9px] text-slate-400 lowercase font-mono">maks: {{ info.total_paid_slot }}</span>{% endif %}
+  </h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+    {% for m in additional %}{{ render_slot(m) }}{% endfor %}
+  </div>
+  {% endif %}
+
+  <details class="border-t border-slate-100 pt-4 group">
+    <summary class="text-[10px] font-black uppercase tracking-wider cursor-pointer text-slate-400 hover:text-slate-600 list-none flex items-center gap-1 select-none w-max">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 transition-transform duration-200 group-open:rotate-90">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+      </svg>
+      Raw response (debug)
+    </summary>
+    <pre class="text-[11px] overflow-x-auto bg-slate-50 border border-slate-100 p-3 rounded-xl mt-2 font-mono text-slate-400">{{ data | tojson(indent=2) }}</pre>
+  </details>
+
+  {% endif %}
+
+  <div class="pb-16"></div>
+</div>
+
+{% endblock %}

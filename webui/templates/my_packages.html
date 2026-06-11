@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Paket Saya · myengsel{% endblock %}
+{% block breadcrumb %}{% include "partials/breadcrumb.html" ignore missing %}{% endblock %}
+{% block content %}
+
+<div class="mb-6 pl-1">
+  <h1 class="text-xl font-black tracking-tight text-black flex items-center gap-2">
+    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+    </svg>
+    Paket Saya
+  </h1>
+  <p class="text-[12px] text-slate-400 mt-1 font-medium">Daftar paket aktif dan sisa kuota Anda.</p>
+</div>
+
+{% if request.query_params.get('msg') == 'ok' %}
+  <div class="mb-4 p-3 bg-black text-white text-[10px] rounded-2xl text-center font-black uppercase tracking-widest shadow-sm">Berhasil berhenti</div>
+{% endif %}
+{% if request.query_params.get('msg') == 'fail' %}
+  <div class="mb-4 p-3 bg-slate-100 text-black text-[10px] rounded-2xl text-center font-black uppercase tracking-widest shadow-sm">Gagal berhenti</div>
+{% endif %}
+
+{% if not quotas %}
+<div class="bg-white border border-slate-100 rounded-[28px] p-10 text-center shadow-sm">
+  <p class="font-black text-black text-sm">Tidak ada paket aktif.</p>
+</div>
+{% endif %}
+
+<div class="space-y-3">
+{% for q in quotas %}
+<div class="bg-white border border-slate-100 rounded-[24px] p-5 shadow-sm transition-all hover:border-black">
+  
+  <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-3 pb-4 border-b border-slate-50">
+    <div class="min-w-0">
+      <div class="text-[9px] font-black tracking-widest text-black uppercase bg-slate-100 px-2 py-0.5 rounded-lg inline-block">{{ q.group_name }}</div>
+      <div class="font-black text-[15px] text-black tracking-tight mt-2 truncate">{{ q.name }}</div>
+      {% if q.expired_at %}
+        <div class="text-[10px] text-slate-400 font-bold mt-1.5 flex items-center gap-1.5">
+          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Aktif s/d {{ q.expired_at | date }}
+        </div>
+      {% endif %}
+    </div>
+    
+    <div class="flex items-center gap-2 mt-1 shrink-0">
+      <a class="bg-slate-100 hover:bg-slate-200 text-black rounded-xl px-4 py-2 text-[10px] font-black transition-all active:scale-[0.98]" href="/packages/by-option?code={{ q.quota_code }}">DETAIL</a>
+      
+      <form action="/packages/my/unsubscribe" method="post" class="inline">
+        <input type="hidden" name="quota_code" value="{{ q.quota_code }}">
+        <input type="hidden" name="product_domain" value="{{ q.product_domain }}">
+        <input type="hidden" name="product_subscription_type" value="{{ q.product_subscription_type }}">
+        <button class="bg-black hover:bg-slate-800 text-white rounded-xl px-4 py-2 text-[10px] font-black transition-all active:scale-[0.98]" type="submit">STOP</button>
+      </form>
+    </div>
+  </div>
+
+  {% if q.benefits %}
+  <div class="mt-4 space-y-4">
+    {% for b in q.benefits %}
+    <div>
+      <div class="flex items-center justify-between text-[11px] mb-2 font-bold text-black">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+            {% if b.data_type == 'DATA' %}
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+            {% elif b.data_type == 'VOICE' %}
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+            {% else %}
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+            {% endif %}
+          </span>
+          {{ b.name }}
+          {% if b.is_unlimited %}
+            <span class="bg-black text-white text-[8px] px-1.5 py-0.5 rounded-md font-black">∞</span>
+          {% endif %}
+        </div>
+        <div>{{ b.rem_disp }} / {{ b.tot_disp }}</div>
+      </div>
+      
+      {% if not b.is_unlimited and b.pct is defined %}
+      <div class="h-1 bg-slate-50 rounded-full overflow-hidden">
+        <div class="h-full bg-black rounded-full" style="width: {{ b.pct }}%"></div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endfor %}
+</div>
+
+<div class="pb-24"></div>
+
+{% endblock %}

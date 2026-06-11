@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Bookmark · myengsel{% endblock %}
+{% block content %}
+
+<div class="mb-6 pl-1">
+  <h1 class="text-xl font-black tracking-tight text-black flex items-center gap-2">
+    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+    </svg>
+    Bookmark
+  </h1>
+  <p class="text-[12px] text-slate-400 mt-1 font-medium">Daftar paket favorit untuk akses cepat.</p>
+</div>
+
+{% if not bookmarks %}
+<div class="bg-white border border-slate-100 rounded-[28px] p-10 text-center shadow-sm">
+  <svg class="w-12 h-12 mx-auto mb-4 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+  </svg>
+  <p class="font-black text-black text-sm">Belum ada paket disimpan.</p>
+  <p class="text-[11px] text-slate-400 mt-1">Anda bisa menandai paket favorit di halaman detail.</p>
+</div>
+{% endif %}
+
+<div class="space-y-3">
+{% for bm in bookmarks %}
+<div class="bg-white border border-slate-100 rounded-[24px] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-black shadow-sm">
+  
+  <div class="flex items-center gap-4 min-w-0">
+    <div class="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+      <svg class="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+      </svg>
+    </div>
+    <div class="min-w-0">
+      <div class="font-black text-sm text-black tracking-tight truncate">
+        {{ bm.family_name }} <span class="text-slate-300 font-normal px-1">/</span> <span class="text-black font-black underline decoration-2 underline-offset-4">{{ bm.variant_name }}</span>
+      </div>
+      <div class="text-[11px] text-slate-400 mt-1 font-bold truncate">
+        {{ bm.option_name }} <span class="text-slate-300 mx-1">•</span> order {{ bm.order }}
+      </div>
+      <div class="text-[10px] font-mono mt-1 text-slate-400">
+        CODE: <span class="font-bold text-black">{{ bm.family_code }}</span>
+      </div>
+    </div>
+  </div>
+  
+  <div class="flex items-center justify-end gap-2 border-t border-slate-50 pt-4 sm:pt-0 sm:border-none">
+    <a class="text-center bg-black hover:bg-slate-800 text-white rounded-xl px-5 py-2 text-[11px] font-black tracking-widest transition-all active:scale-[0.98]" 
+       href="/packages/by-family?code={{ bm.family_code }}">
+      BUKA
+    </a>
+    
+    <form action="/bookmark/remove" method="post" class="inline">
+      <input type="hidden" name="family_code" value="{{ bm.family_code }}">
+      <input type="hidden" name="is_enterprise" value="{{ bm.is_enterprise }}">
+      <input type="hidden" name="variant_name" value="{{ bm.variant_name }}">
+      <input type="hidden" name="order" value="{{ bm.order }}">
+      <button class="bg-slate-100 hover:bg-slate-200 text-black rounded-xl px-4 py-2 text-[11px] font-bold tracking-widest transition-all active:scale-[0.98]" 
+              type="submit">
+        HAPUS
+      </button>
+    </form>
+  </div>
+</div>
+{% endfor %}
+</div>
+
+<div class="pb-24"></div>
+
+{% endblock %}

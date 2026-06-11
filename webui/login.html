@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Login · me-cli{% endblock %}
+{% block content %}
+<div class="max-w-lg mx-auto">
+
+  <!-- Welcome banner -->
+  <div class="text-center mb-6">
+    <div class="text-4xl mb-2">⚡</div>
+    <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-300 to-fuchsia-300 bg-clip-text text-transparent">Selamat datang di me-cli</h1>
+    <p class="text-sm text-slate-400 mt-1">WebUI untuk akun MyXL — login pakai nomor lo sendiri</p>
+  </div>
+
+  <!-- Tabs -->
+  {% set active_tab = (tab or 'login') %}
+  <div class="flex gap-1 bg-slate-900 border border-slate-800 rounded-lg p-1 mb-4">
+    {% for t in [('login','🔑 Login'),('register','📝 Register Kartu'),('saved','👤 Akun Tersimpan')] %}
+    <a href="?tab={{ t[0] }}{% if phone and t[0]=='login' %}&phone={{ phone }}{% endif %}"
+       class="flex-1 text-center px-3 py-2 rounded-md text-sm transition-colors {% if active_tab == t[0] %}bg-indigo-600/30 text-indigo-200 border border-indigo-500/40{% else %}text-slate-400 hover:text-white hover:bg-slate-800{% endif %}"
+       data-no-loader>{{ t[1] }}</a>
+    {% endfor %}
+  </div>
+
+  {% if error %}<div class="alert-error">{{ error }}</div>{% endif %}
+  {% if info %}<div class="alert-success">{{ info }}</div>{% endif %}
+
+  {# ====== TAB: LOGIN (OTP) ====== #}
+  {% if active_tab == 'login' %}
+  <div class="card">
+    {% if not pending_otp %}
+    <h2 class="text-lg font-bold mb-1">Login pakai OTP</h2>
+    <p class="text-xs text-slate-400 mb-4">Masukin nomor XL lo. Kita kirim kode OTP via SMS dari MyXL.</p>
+    <form action="/login/request-otp" method="post" class="space-y-3">
+      <div>
+        <label class="label">Nomor XL (628xxx)</label>
+        <input class="form-input" type="text" name="phone" value="{{ phone or '' }}" placeholder="6281234567890" required pattern="628\d{7,11}" autofocus>
+        <p class="text-xs text-slate-500 mt-1">Contoh: <span class="font-mono">6281234567890</span></p>
+      </div>
+      <button class="btn btn-primary w-full" type="submit">Kirim OTP</button>
+    </form>
+    {% else %}
+    <h2 class="text-lg font-bold mb-1">Masukin OTP</h2>
+    <p class="text-sm text-slate-400 mb-4">SMS terkirim ke <span class="font-mono text-slate-200">{{ phone }}</span>. Cek pesan masuk kamu.</p>
+    <form action="/login/submit-otp" method="post" class="space-y-3">
+      <input type="hidden" name="phone" value="{{ phone }}">
+      <div>
+        <label class="label">Kode OTP (6 digit)</label>
+        <input class="form-input text-center text-2xl tracking-[0.4em] font-mono" type="text" name="otp" maxlength="6" pattern="\d{6}" required autofocus inputmode="numeric">
+      </div>
+      <button class="btn btn-primary w-full" type="submit">Verifikasi & Login</button>
+    </form>
+    <div class="flex items-center justify-between mt-4 text-xs text-slate-500">
+      <a href="?tab=login" class="hover:text-slate-300" data-no-loader>← Ganti nomor</a>
+      <form action="/login/request-otp" method="post" class="inline"
+            data-confirm="Kirim ulang OTP ke <span class='font-mono'>{{ phone }}</span>? Tunggu min 60 detik antar request supaya nggak kena rate-limit MyXL."
+            data-confirm-title="Kirim ulang OTP?"
+            data-confirm-variant="otp"
+            data-confirm-ok="Kirim ulang">
+        <input type="hidden" name="phone" value="{{ phone }}">
+        <button type="submit" class="hover:text-slate-300">Kirim ulang OTP</button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="text-center text-xs text-slate-500 mt-4">
+    Belum punya nomor XL?
+    <a href="?tab=register" class="text-indigo-300 hover:text-indigo-200" data-no-loader>Daftar nomor baru →</a>
+  </div>
+  {% endif %}
+
+  {# ====== TAB: REGISTER (DUKCAPIL) ====== #}
+  {% if active_tab == 'register' %}
+  <div class="card">
+    <h2 class="text-lg font-bold mb-1">📝 Registrasi Kartu MyXL Baru</h2>
+    <p class="text-xs text-slate-400 mb-4">Daftarin nomor SIM XL baru pakai NIK & KK lo. Pastikan data sesuai KTP — sistem MyXL ngecek ke Dukcapil.</p>
+    <form action="/register" method="post" class="space-y-3"
+          data-confirm="Registrasi MSISDN <span class='font-mono text-sky-300'>{field:msisdn}</span> akan diproses dengan NIK & KK yang lo masukin. Pastikan data sesuai KTP — kalau salah berkali-kali nomor bisa kena suspend."
+          data-confirm-title="Konfirmasi Registrasi"
+          data-confirm-variant="warning"
+          data-confirm-ok="Daftarkan">
+      <div>
+        <label class="label">Nomor SIM XL (628xxx)</label>
+        <input class="form-input" name="msisdn" pattern="628\d{7,11}" required placeholder="6281234567890">
+      </div>
+      <div>
+        <label class="label">NIK (16 digit, dari KTP)</label>
+        <input class="form-input font-mono" name="nik" pattern="\d{16}" required maxlength="16">
+      </div>
+      <div>
+        <label class="label">No. KK (16 digit, dari Kartu Keluarga)</label>
+        <input class="form-input font-mono" name="kk" pattern="\d{16}" required maxlength="16">
+      </div>
+      <button class="btn btn-primary w-full" type="submit">Daftarkan ke MyXL</button>
+    </form>
+    <div class="text-xs text-slate-500 text-center mt-4">
+      <a href="/register/puk" data-no-loader class="hover:text-slate-300">Punya kode PUK? Validasi PUK →</a>
+    </div>
+  </div>
+
+  <div class="text-center text-xs text-slate-500 mt-4">
+    Udah punya nomor? <a href="?tab=login" class="text-indigo-300 hover:text-indigo-200" data-no-loader>Login →</a>
+  </div>
+  {% endif %}
+
+  {# ====== TAB: SAVED ACCOUNTS ====== #}
+  {% if active_tab == 'saved' %}
+  <div class="card">
+    <h2 class="text-lg font-bold mb-1">👤 Akun Tersimpan</h2>
+    <p class="text-xs text-slate-400 mb-4">Akun yang udah pernah login di browser ini. Tinggal pilih buat aktifin.</p>
+
+    {% if not saved_accounts %}
+    <div class="text-center py-6 text-slate-500">
+      <div class="text-3xl mb-2">🫥</div>
+      <div class="text-sm">Belum ada akun tersimpan.</div>
+      <a href="?tab=login" class="btn btn-primary text-sm mt-3 inline-block" data-no-loader>Login dulu →</a>
+    </div>
+    {% else %}
+    <div class="space-y-2">
+      {% for u in saved_accounts %}
+      <div class="flex items-center justify-between gap-3 p-3 border border-slate-800 rounded-lg {% if current_active and u.number == current_active.number %}bg-emerald-500/10 border-emerald-500/40{% endif %}">
+        <div class="min-w-0">
+          <div class="font-mono font-medium">{{ u.number }}</div>
+          <div class="text-xs text-slate-500">{{ u.subscription_type or 'unknown' }}</div>
+        </div>
+        <div class="flex gap-2 shrink-0">
+          {% if current_active and u.number == current_active.number %}
+          <span class="text-xs text-emerald-300 px-3 py-1.5">✓ Aktif</span>
+          {% else %}
+          <form action="/accounts/activate" method="post">
+            <input type="hidden" name="number" value="{{ u.number }}">
+            <button class="btn btn-primary text-xs" type="submit">Aktifkan</button>
+          </form>
+          {% endif %}
+          <form action="/accounts/remove" method="post"
+                data-confirm="Akun <span class='font-mono text-red-300'>{{ u.number }}</span> bakal di-remove dari local storage. Lo perlu login ulang via OTP kalau mau pakai lagi."
+                data-confirm-title="Hapus akun?"
+                data-confirm-variant="danger"
+                data-confirm-ok="Hapus">
+            <input type="hidden" name="number" value="{{ u.number }}">
+            <button class="btn btn-danger text-xs" type="submit">Hapus</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="border-t border-slate-800 mt-4 pt-3">
+      <a href="?tab=login" class="text-sm text-indigo-300 hover:text-indigo-200" data-no-loader>+ Tambah akun lain</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Note -->
+  <div class="mt-6 text-center text-xs text-slate-600 max-w-md mx-auto">
+    💡 WebUI ini bisa nyimpan banyak akun, tapi yang <b>aktif</b> cuma 1 dalam satu waktu. Kalau orang lain login, sebelumnya jadi nggak aktif. Bisa di-switch via dropdown nav.
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Loop Beli Family · myengsel{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto px-4 py-8">
+  <div class="mb-8">
+    <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+      <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      Loop Beli Family
+    </h1>
+    <p class="text-sm text-slate-500 mt-2 font-medium">Beli berurutan semua opsi dalam satu family code secara otomatis.</p>
+  </div>
+
+  <div class="bg-white border border-slate-100 rounded-[32px] p-8 shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
+    <form action="/purchase/family-loop/start" method="post" class="space-y-6">
+      
+      <div>
+        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 mb-2 block">Family Code</label>
+        <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-mono font-bold text-slate-900 focus:border-black outline-none transition-all" 
+               type="text" name="family_code" value="{{ family_code }}" required autocomplete="off">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 mb-2 block">Index Awal</label>
+          <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 outline-none focus:border-black transition-all" 
+                 type="number" name="start_from" value="1" min="1">
+        </div>
+        <div>
+          <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 mb-2 block">Delay (Detik)</label>
+          <input class="w-full bg-slate-50 border border-slate-100 rounded-2xl px-5 py-4 text-sm font-bold text-slate-900 outline-none focus:border-black transition-all" 
+                 type="number" name="delay_seconds" value="0" min="0" max="60">
+        </div>
+      </div>
+
+      <label class="flex items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-2xl cursor-pointer">
+        <div>
+          <span class="text-sm font-bold text-slate-900 block">Decoy Mode</span>
+          <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Gunakan data samaran</span>
+        </div>
+        <div class="relative">
+          <input type="checkbox" name="use_decoy" value="true" class="sr-only peer">
+          <div class="w-11 h-6 bg-slate-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-900"></div>
+        </div>
+      </label>
+
+      <button class="w-full py-4 rounded-2xl bg-slate-900 hover:bg-black text-white font-black text-xs uppercase tracking-widest transition-all active:scale-[0.98]" 
+              type="submit">
+        Mulai Loop
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

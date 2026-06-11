@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login/Register · myengsel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <style>
+    [x-cloak] { display: none !important; }
+    .ios-input { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; transition: all 0.2s; }
+    .ios-input:focus { border-color: #000; box-shadow: 0 0 0 2px #f1f5f9; }
+  </style>
+</head>
+<body class="text-slate-900 min-h-screen flex items-center justify-center p-6 antialiased bg-slate-50" 
+      x-data="{ mode: '{{ mode | default('login') }}', showPassword: false, showAlert: false }"
+      x-init="setTimeout(() => showAlert = true, 500)">
+
+  <div x-show="showAlert" 
+     x-cloak
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0 scale-95"
+     x-transition:enter-end="opacity-100 scale-100"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/20 backdrop-blur-sm">
+  
+  <div class="bg-white/90 w-full max-w-xs rounded-2xl shadow-2xl border border-white/50 overflow-hidden text-center">
+    <div class="p-6">
+      <h3 class="text-lg font-bold text-slate-900 mb-2">Selamat Datang di My-Engsel</h3>
+      <p class="text-sm text-slate-600 mb-6">Silakan masuk atau lakukan registrasi untuk mengakses dasbor layanan Anda.</p>
+      <button @click="showAlert = false" 
+              class="w-full py-3 bg-slate-900 text-white font-bold rounded-xl active:scale-[0.98] transition-transform">
+        Oke
+      </button>
+    </div>
+  </div>
+</div>
+
+
+  <div class="max-w-sm w-full">
+
+    <div class="text-center mb-8">
+      <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-xl">
+        <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+      </div>
+      <h1 class="text-2xl font-black tracking-tight text-slate-900 uppercase">my-engsel</h1>
+      <p class="text-[11px] text-slate-400 font-medium tracking-wide mt-0.5">WebUI multi-user untuk MyXL</p>
+    </div>
+
+    <div class="flex gap-1 bg-slate-200/70 p-1 rounded-2xl mb-6">
+      <button @click="mode = 'login'"
+         class="flex-1 text-center py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-300"
+         :class="mode === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
+        Login
+      </button>
+      <button @click="mode = 'register'"
+         class="flex-1 text-center py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all duration-300"
+         :class="mode === 'register' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'">
+        Daftar Baru
+      </button>
+    </div>
+
+    {% if error %}<div class="mb-4 p-3.5 bg-red-50 border border-red-100 text-red-600 text-xs rounded-2xl text-center font-medium shadow-sm">{{ error }}</div>{% endif %}
+    {% if info %}<div class="mb-4 p-3.5 bg-emerald-50 border border-emerald-100 text-emerald-600 text-xs rounded-2xl text-center font-medium shadow-sm">{{ info }}</div>{% endif %}
+
+    <div class="bg-white rounded-[32px] p-6 shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-slate-100">
+      
+      <div x-show="mode === 'register'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+        <div class="mb-5">
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight">Create Account</h2>
+          <p class="text-xs text-slate-400 mt-1 leading-relaxed">Mohon buat akun WebUI Anda terlebih dahulu untuk mendapatkan akses penuh ke sistem.</p>
+        </div>
+        <form action="/u/register" method="post" class="space-y-4">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Username</label>
+            <input class="w-full ios-input px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none font-mono" type="text" name="username" value="{{ username }}" placeholder="Masukkan username" required pattern="[a-z0-9][a-z0-9_-]{2,30}">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">License Key</label>
+            <input class="w-full ios-input px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none font-mono" type="text" name="license_key" placeholder="Contoh: MYENGSEL-123" required>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Password</label>
+            <div class="relative">
+              <input :type="showPassword ? 'text' : 'password'" class="w-full ios-input px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none pr-12" name="password" required minlength="6" placeholder="••••••••">
+              <button type="button" @click="showPassword = !showPassword" class="absolute right-4 top-3.5 text-slate-400 hover:text-slate-800 transition-colors">
+                <svg x-show="!showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <svg x-show="showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Ulangi password</label>
+            <input class="w-full ios-input px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none" :type="showPassword ? 'text' : 'password'" name="password_confirm" required minlength="6" placeholder="••••••••">
+          </div>
+          <button class="w-full bg-slate-900 hover:bg-black text-white py-3.5 rounded-2xl text-xs font-bold tracking-wide transition-all duration-200 active:scale-[0.98] mt-2 shadow-sm" type="submit">Daftar & masuk</button>
+        </form>
+        <p class="text-xs text-slate-500 text-center mt-6">Udah punya akun? <button @click="mode = 'login'" class="text-slate-900 font-bold hover:underline ml-0.5">Login sekarang →</button></p>
+      </div>
+
+      <div x-show="mode === 'login'" x-cloak x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0">
+        <div class="mb-5">
+          <h2 class="text-xl font-bold text-slate-900 tracking-tight">Login</h2>
+          <p class="text-xs text-slate-400 mt-1 leading-relaxed">Masukkan kredensial akun WebUI Anda di bawah ini.</p>
+        </div>
+        <form action="/u/login" method="post" class="space-y-4">
+          <input type="hidden" name="next" value="{{ next }}">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Username</label>
+            <input class="w-full ios-input px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none font-mono" type="text" name="username" value="{{ username }}" placeholder="Masukkan username" required pattern="[a-z0-9][a-z0-9_-]{2,30}">
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Password</label>
+            <div class="relative">
+              <input :type="showPassword ? 'text' : 'password'" class="w-full ios-input px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none pr-12" name="password" placeholder="••••••••" required>
+              <button type="button" @click="showPassword = !showPassword" class="absolute right-4 top-3.5 text-slate-400 hover:text-slate-800 transition-colors">
+                <svg x-show="!showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <svg x-show="showPassword" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+              </button>
+            </div>
+          </div>
+          <button class="w-full bg-slate-900 hover:bg-black text-white py-3.5 rounded-2xl text-xs font-bold tracking-wide transition-all duration-200 active:scale-[0.98] mt-2 shadow-sm" type="submit">Masuk</button>
+        </form>
+        
+        <div class="space-y-2 mt-6">
+          <a href="https://t.me/myengselbot" class="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 py-3 rounded-2xl text-xs font-semibold border border-slate-200/60 flex items-center justify-center gap-2 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
+            Continue with Telegram Bot
+          </a>
+          <a href="https://t.me/mhmdsairii" class="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 py-3 rounded-2xl text-xs font-semibold border border-slate-200/60 flex items-center justify-center gap-2 transition-all">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Continue with Chat Admin
+          </a>
+        </div>
+        <p class="text-xs text-slate-500 text-center mt-5">Belum punya akun? <button @click="mode = 'register'" class="text-slate-900 font-bold hover:underline ml-0.5">Daftar baru →</button></p>
+      </div>
+
+    </div>
+
+    <div class="flex items-center justify-center mt-8">
+      <p class="flex items-center gap-2 text-[10px] font-bold tracking-wider uppercase text-slate-400 bg-white border border-slate-100 rounded-full py-1.5 px-4 shadow-sm">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-slate-900"></span>
+        </span>
+        <span>{{ users_count }} user terdaftar</span>
+      </p>
+    </div>
+    
+  </div>
+</body>
+</html>

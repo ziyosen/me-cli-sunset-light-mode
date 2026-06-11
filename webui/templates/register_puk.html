@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}PUK · myengsel{% endblock %}
+{% block content %}
+
+<div class="max-w-md mx-auto my-6 px-2">
+  
+  <div class="mb-6 text-center">
+    <h1 class="text-xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 text-slate-900">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+      </svg>
+      PUK Validation
+    </h1>
+    <p class="text-[11px] font-medium text-slate-400 mt-0.5">Validasi kode PUK untuk membuka kunci kartu Anda.</p>
+  </div>
+
+  <div class="bg-white border border-slate-100 rounded-3xl p-6 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
+    <form action="/register/puk" method="post" class="space-y-4">
+      
+      <div>
+        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 pl-1">MSISDN (628xxx)</label>
+        <input class="w-full bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2.5 text-xs font-mono text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/5 transition-all shadow-sm" 
+               name="msisdn" pattern="628\d{7,11}" value="{{ msisdn or '' }}" placeholder="628xxxxxxxx" required>
+      </div>
+
+      <div>
+        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 pl-1">Kode PUK</label>
+        <input class="w-full bg-slate-50 border border-slate-200/70 rounded-xl px-3 py-2.5 text-xs font-mono text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-900 focus:ring-2 focus:ring-slate-900/5 transition-all shadow-sm" 
+               name="puk" placeholder="Masukkan 8 digit PUK" required>
+      </div>
+
+      <button class="w-full bg-slate-900 hover:bg-slate-800 text-white py-2.5 rounded-xl text-xs font-black tracking-wide transition-all shadow-sm active:scale-[0.98] mt-2" 
+              type="submit">
+        Validasi Kode
+      </button>
+    </form>
+  </div>
+
+  {% if res %}
+  <div class="mt-4 bg-white border border-slate-100 rounded-2xl px-4 py-3 shadow-[0_4px_12px_rgba(0,0,0,0.01)]">
+    <details class="group">
+      <summary class="cursor-pointer text-[10px] font-black tracking-widest text-slate-400 group-hover:text-slate-800 list-none flex items-center justify-between select-none uppercase">
+        <span class="flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5 text-slate-400">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+          </svg>
+          Raw Response (Debug)
+        </span>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3 h-3 text-slate-400 transition-transform duration-200 group-open:rotate-90">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+      </summary>
+      <div class="mt-3 border-t border-slate-50 pt-3">
+        <pre class="text-[11px] overflow-x-auto bg-slate-50 border border-slate-100 p-4 rounded-xl font-mono text-slate-600 leading-relaxed select-all">{{ res | tojson(indent=2) }}</pre>
+      </div>
+    </details>
+  </div>
+  {% endif %}
+
+</div>
+
+<div class="pb-16"></div>
+
+{% endblock %}

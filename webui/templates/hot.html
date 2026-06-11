@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %} {{ title }} · myengsel {% endblock %}
+{% block content %}
+
+<div class="mb-6 pl-1">
+  <h1 class="text-xl font-black tracking-tight text-slate-900">{{ title }}</h1>
+  <p class="text-xs text-slate-400 mt-0.5">Daftar paket promo khusus dan penawaran terbatas untuk Anda.</p>
+</div>
+
+{% if not packages %}
+<div class="bg-white border border-slate-100 rounded-[32px] p-8 text-slate-400 text-sm text-center shadow-[0_20px_50px_rgba(0,0,0,0.04)]">
+  <svg class="w-10 h-10 mx-auto mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+  </svg>
+  <p class="font-bold text-slate-800">Belum ada data paket promo.</p>
+  <p class="text-xs text-slate-400 mt-1.5">Periksa file <code class="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600 font-mono text-[11px]">hot_data/{{ kind }}.json</code>.</p>
+</div>
+{% else %}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+{% for p in packages %}
+  
+  {% if kind == "hot" %}
+  <a class="bg-white border border-slate-100 rounded-[24px] p-5 flex flex-col justify-between transition-all duration-200 hover:border-black hover:shadow-[0_20px_40px_rgba(0,0,0,0.05)] active:scale-[0.98] shadow-[0_10px_30px_rgba(0,0,0,0.02)] min-h-[140px] group" 
+     href="/packages/by-family?code={{ p.family_code }}">
+    
+    <div class="space-y-1">
+      <div class="font-black text-sm text-slate-900 tracking-tight group-hover:underline">{{ p.family_name }}</div>
+      <div class="text-[11px] text-slate-400 font-medium">
+        {{ p.variant_name }} 
+        {% if p.option_name %}
+          <span class="text-slate-200 mx-1">·</span> {{ p.option_name }}
+        {% endif %}
+      </div>
+    </div>
+    
+    <div class="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-[10px] font-mono text-slate-400 font-medium">
+      <div>order: <span class="text-slate-900 font-bold font-sans">{{ p.order }}</span></div>
+      {% if p.is_enterprise %}
+      <span class="bg-black text-white px-2 py-0.5 rounded-md font-sans font-black uppercase text-[8px]">Enterprise</span>
+      {% endif %}
+    </div>
+  </a>
+  
+  {% else %}
+  <div class="bg-white border border-slate-100 rounded-[24px] p-6 flex flex-col justify-between shadow-[0_20px_50px_rgba(0,0,0,0.04)] min-h-[180px]">
+    
+    <div class="space-y-2">
+      <div class="flex items-start justify-between gap-3">
+        <div class="font-black text-sm text-slate-900 tracking-tight">{{ p.name }}</div>
+        <div class="font-mono font-bold text-xs text-slate-900 bg-slate-100 px-2.5 py-1 rounded-xl shadow-sm">{{ p.price | rp }}</div>
+      </div>
+      <p class="text-xs text-slate-500 font-medium leading-relaxed">{{ p.detail }}</p>
+    </div>
+
+    {% if p.packages %}
+    <div class="mt-5 pt-4 border-t border-slate-100">
+      <div class="text-[11px] text-slate-600 font-medium bg-slate-50 border border-slate-100 rounded-xl p-3 mb-4 leading-relaxed flex items-center gap-2">
+        <svg class="w-4 h-4 text-slate-900" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+        Bundle <span class="text-black font-black">{{ p.packages | length }} sub-paket</span>.
+      </div>
+      
+      <form action="/purchase/hot2" method="post" class="space-y-2">
+        <input type="hidden" name="hot2_idx" value="{{ loop.index0 }}">
+        
+        <div class="relative">
+          <select name="method" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-bold text-slate-900 focus:border-black outline-none transition-all cursor-pointer appearance-none">
+            <option value="balance">Balance</option>
+            <option value="qris">QRIS</option>
+            <option value="ewallet_dana">DANA</option>
+            <option value="ewallet_shopeepay">ShopeePay</option>
+            <option value="ewallet_gopay">GoPay</option>
+            <option value="ewallet_ovo">OVO</option>
+          </select>
+          <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none text-slate-400 text-[9px]">▼</div>
+        </div>
+        
+        <button class="w-full bg-slate-900 hover:bg-black text-white py-3 rounded-xl text-xs font-bold tracking-wide transition-all active:scale-[0.98] shadow-sm" type="submit">
+          Beli Paket Bundle
+        </button>
+      </form>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+{% endfor %}
+</div>
+{% endif %}
+
+<div class="pb-24"></div>
+
+{% endblock %}

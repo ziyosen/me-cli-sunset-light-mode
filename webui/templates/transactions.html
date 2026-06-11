@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Riwayat Transaksi · myengsel{% endblock %}
+{% block content %}
+
+<div class="flex items-center justify-between mb-6 pl-1">
+  <div>
+    <h1 class="text-xl font-black tracking-tight text-black flex items-center gap-2">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+      </svg>
+      Transaksi
+    </h1>
+    <p class="text-[12px] text-slate-400 mt-1 font-medium">Riwayat pembelian dan pembayaran Anda.</p>
+  </div>
+  <a href="/transactions" class="text-[10px] font-black uppercase tracking-widest text-black bg-white border border-slate-200 rounded-xl px-4 py-2 hover:bg-slate-50 transition-all active:scale-[0.98]">↻ Refresh</a>
+</div>
+
+{% if not items %}
+<div class="bg-white border border-slate-100 rounded-[28px] p-10 text-center shadow-sm">
+  <svg class="w-12 h-12 mx-auto mb-4 text-slate-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+  </svg>
+  <p class="font-black text-black text-sm">Belum ada transaksi.</p>
+</div>
+{% else %}
+
+<div class="text-[10px] font-black tracking-widest text-slate-400 uppercase mb-4 pl-1">{{ items | length }} Transaksi Terdaftar</div>
+
+<div class="space-y-3">
+{% for t in items %}
+<div class="bg-white border border-slate-100 rounded-[24px] p-5 transition-all hover:border-black shadow-sm">
+  <div class="flex items-start gap-4">
+    
+    <div class="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+      {% if t.icon_data_uri %}
+        <img src="{{ t.icon_data_uri }}" alt="" class="w-6 h-6 object-contain">
+      {% else %}
+        <svg class="w-6 h-6 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+      {% endif %}
+    </div>
+    
+    <div class="min-w-0 flex-1">
+      <div class="flex justify-between items-start gap-2">
+        <div class="font-black text-[14px] text-black tracking-tight leading-tight line-clamp-2">{{ t.title }}</div>
+        <div class="font-mono font-black text-[12px] text-black bg-slate-100 px-2 py-1 rounded-lg shrink-0">{{ t.price }}</div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 mt-2 text-[10px] font-bold text-slate-500">
+        {% if t.validity %}<span class="uppercase tracking-wider">{{ t.validity }}</span>{% endif %}
+        {% if t.target %}<span class="text-slate-300">•</span> <span class="font-mono text-black">{{ t.target }}</span>{% endif %}
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-slate-50">
+        <span class="text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg bg-black text-white">
+          {{ t.status or 'UNKNOWN' }}
+        </span>
+        
+        <span class="text-[9px] font-bold uppercase tracking-widest px-2 py-1 rounded-lg bg-slate-100 text-black flex items-center gap-1.5">
+          {% if 'QRIS' in t.payment_method or 'WhatsApp' in t.payment_method %}
+          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12.01 2.01c-5.52 0-10 4.48-10 10 0 1.76.46 3.49 1.34 5.01L2 22l5.22-1.37c1.51.82 3.22 1.25 4.96 1.25 5.52 0 10-4.48 10-10s-4.48-10-10-10zm0 18.33c-1.46 0-2.89-.39-4.13-1.13l-.3-.18-3.08.8.82-3.01-.2-.31c-.77-1.22-1.18-2.64-1.18-4.08 0-4.42 3.6-8.01 8.02-8.01 2.14 0 4.15.83 5.66 2.34 1.51 1.51 2.34 3.52 2.34 5.66-.01 4.42-3.6 8.01-8.02 8.01zm4.38-6.01c-.24-.12-1.41-.7-1.63-.78-.22-.08-.38-.12-.54.12-.16.24-.61.78-.75.94-.14.16-.28.18-.52.06s-1.04-.38-1.98-1.22c-.73-.65-1.22-1.45-1.36-1.69-.14-.24-.01-.37.1-.49.11-.11.24-.29.36-.43.12-.14.16-.24.24-.41.08-.17.04-.32-.02-.45-.06-.13-.54-1.31-.74-1.79-.19-.47-.38-.41-.53-.41-.14-.01-.3-.01-.46-.01s-.42.06-.64.3c-.22.24-.85.83-.85 2.03s.87 2.35 1.01 2.52c.14.17 1.73 2.65 4.19 3.72.58.25 1.03.4 1.39.51.58.19 1.11.16 1.53.1.47-.07 1.44-.59 1.64-1.16.2-.57.2-1.06.14-1.16-.06-.1-.22-.16-.46-.28z"/>
+          </svg>
+          {% endif %}
+          {{ t.payment_method }}
+        </span>
+        
+        {% if t.dt %}<span class="text-[10px] font-bold text-slate-400 ml-auto">{{ t.dt }}</span>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+</div>
+
+<details class="mt-8 border-t border-slate-100 pt-6 group">
+  <summary class="text-[11px] cursor-pointer text-slate-400 hover:text-black font-bold select-none list-none flex items-center gap-2">
+    <svg class="w-3 h-3 transition-transform group-open:rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    Raw response (debug)
+  </summary>
+  <pre class="text-[10px] overflow-x-auto bg-slate-50 border border-slate-100 p-4 rounded-2xl mt-3 font-mono text-slate-400">{{ raw | tojson(indent=2) }}</pre>
+</details>
+
+{% endif %}
+
+<div class="pb-24"></div>
+
+{% endblock %}

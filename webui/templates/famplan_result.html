@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · myengsel{% endblock %}
+{% block content %}
+
+<div class="max-w-xl mx-auto px-1">
+
+  <div class="mb-5 pl-1">
+    <h1 class="text-xl font-black tracking-tight text-slate-900">{{ title }}</h1>
+    <p class="text-[11px] font-medium text-slate-400 mt-0.5">Detail respons data mentah dari server API.</p>
+  </div>
+
+  <div class="bg-white border border-slate-100 rounded-3xl p-4 shadow-[0_10px_30px_rgba(0,0,0,0.02)]">
+    <pre class="text-[11px] overflow-x-auto bg-slate-50 border border-slate-100 p-4 rounded-2xl font-mono text-slate-600 leading-relaxed">{{ res | tojson(indent=2) }}</pre>
+  </div>
+
+  <div class="mt-5 pl-1">
+    <a href="/family-plan" class="inline-flex items-center gap-1.5 text-xs font-black text-slate-500 hover:text-slate-900 transition-colors py-2">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+      </svg>
+      Kembali
+    </a>
+  </div>
+
+</div>
+
+{% endblock %}

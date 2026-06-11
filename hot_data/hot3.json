@@ -1,0 +1,42 @@
+[
+    {
+        "display_name": "XTRA COMBO PLUS 9GB RP 40000",
+        "family_name": "Xtra Combo Plus",
+        "family_code": "23b71540-8785-4abe-816d-e9b4efa48f95",
+        "is_enterprise": false,
+        "overwrite_amount": 40000,
+        "variant_name": "Reguler",
+        "option_name": "Rp40000",
+        "order": 9
+    },
+    {
+        "display_name": "XTRA COMBO PLUS 7GB RP 30000",
+        "family_name": "Xtra Combo Plus",
+        "family_code": "23b71540-8785-4abe-816d-e9b4efa48f95",
+        "is_enterprise": false,
+        "overwrite_amount": 30000,
+        "variant_name": "Reguler",
+        "option_name": "Rp30000",
+        "order": 20
+    },
+        {
+        "display_name": "XTRA COMBO PLUS 100GB RP 185500",
+        "family_name": "Reguler 100GB",
+        "family_code": "23b71540-8785-4abe-816d-e9b4efa48f95",
+        "is_enterprise": false,
+        "overwrite_amount": 185500,
+        "variant_name": "Reguler",
+        "option_name": "100GB",
+        "order": 25
+    },
+        {
+        "display_name": "XTRA COMBO PLUS 20GB RP 61500",
+        "family_name": "Reguler 20GB",
+        "family_code": "23b71540-8785-4abe-816d-e9b4efa48f95",
+        "is_enterprise": false,
+        "overwrite_amount": 61500,
+        "variant_name": "Reguler",
+        "option_name": "20GB",
+        "order": 28
+    }
+]

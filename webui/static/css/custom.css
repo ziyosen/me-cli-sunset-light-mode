@@ -1,0 +1,220 @@
+/* Cards */
+.card {
+  background: rgb(15 23 42);
+  border: 1px solid rgb(30 41 59);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.card:hover {
+  border-color: rgb(99 102 241 / 0.6);
+}
+
+.card-link {
+  display: block;
+  padding: 1rem;
+  border: 1px solid;
+  border-radius: 0.75rem;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.input-minimal {
+    transition: all 0.3s ease;
+}
+.input-minimal:focus {
+    border-color: white !important;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.1);
+}
+
+.card-link:hover { transform: translateY(-2px); }
+
+.card-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 0.75rem;
+  background: rgb(15 23 42);
+  border: 1px solid rgb(30 41 59);
+  border-radius: 0.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: rgb(226 232 240);
+  transition: all 0.15s;
+  min-height: 90px;
+}
+.card-action:hover {
+  background: rgb(30 41 59);
+  border-color: rgb(99 102 241 / 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px -2px rgb(99 102 241 / 0.25);
+}
+
+/* Buttons */
+.btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.15s, transform 0.05s;
+  line-height: 1.2;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: rgb(79 70 229); color: white; }
+.btn-primary:hover { background: rgb(67 56 202); }
+.btn-secondary { background: rgb(51 65 85); color: rgb(226 232 240); }
+.btn-secondary:hover { background: rgb(71 85 105); }
+.btn-danger { background: rgb(220 38 38); color: white; }
+.btn-danger:hover { background: rgb(185 28 28); }
+
+/* Forms */
+.form-input {
+  background: rgb(30 41 59);
+  border: 1px solid rgb(51 65 85);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  color: rgb(241 245 249);
+  width: 100%;
+  font-size: 0.875rem;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.form-input:focus {
+  outline: none;
+  border-color: rgb(99 102 241);
+  box-shadow: 0 0 0 3px rgb(99 102 241 / 0.2);
+}
+.custom-badge-beta {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  
+  /* VERSI TERBAIK: Gradasi Merah Utama ke Oranye Cerah (Menyala di Background Gelap) */
+  background: linear-gradient(135deg, #ee0039 0%, #ff7300 100%);
+  
+  /* SHAPE FIX: Tetap berbentuk persegi panjang melengkung bulat murni (Pill/Kapsul) */
+  padding: 3px 12px;        /* Atas-bawah tipis (3px), Kanan-kiri panjang lebar (12px) */
+  border-radius: 50px;       /* Melengkung lingkaran penuh di ujung kiri-kanan */
+  
+  /* BORDER & SHADOW FIXED: Menggunakan pendaran merah-oranye terang */
+  border: 1px solid rgba(255, 115, 0, 0.4);
+  line-height: 1;
+  
+  /* Mengaktifkan efek kedip halus */
+  animation: pulse-kedip 2s infinite ease-in-out;
+  box-shadow: 0 0 8px rgba(238, 0, 57, 0.5);
+  user-select: none;
+}
+
+/* Animasi kedip halus (Pulse effect) */
+@keyframes pulse-kedip {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.96); /* Efek mengecil mikro saat meredup agar dinamis */
+  }
+}
+
+.label {
+  display: block;
+  font-size: 0.7rem;
+  color: rgb(148 163 184);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* Alerts */
+.alert-error {
+  background: rgb(127 29 29 / 0.3);
+  border: 1px solid rgb(220 38 38 / 0.5);
+  color: rgb(254 202 202);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+.alert-success {
+  background: rgb(20 83 45 / 0.3);
+  border: 1px solid rgb(34 197 94 / 0.5);
+  color: rgb(187 247 208);
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+/* Custom iOS Native Feel Styles */
+body {
+    background-color: #f4f6f8 !important;
+}
+
+/* Animasi lingkaran halus saat input ditekan */
+.ios-input {
+    background-color: #f1f3f5;
+    border: 1px solid #e9ecef;
+    border-radius: 14px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ios-input:focus {
+    background-color: #ffffff;
+    border-color: #111827;
+    box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.08);
+}
+
+/* Animasi perpindahan halaman ala iPhone */
+.ios-page-container {
+    animation: iosSlideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes iosSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Sidebar/Drawer */
+#sidebar { transition: transform 0.2s ease; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgb(2 6 23); }
+::-webkit-scrollbar-thumb { background: rgb(51 65 85); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgb(71 85 105); }
+
+/* JSON / Pre */
+pre {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+/* Misc */
+details > summary {
+  list-style: none;
+  user-select: none;
+}
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before {
+  content: "▸";
+  display: inline-block;
+  margin-right: 0.5em;
+  transition: transform 0.15s;
+}
+details[open] > summary::before {
+  transform: rotate(90deg);
+}

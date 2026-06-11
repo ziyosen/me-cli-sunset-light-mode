@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Store Families · myengsel{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pl-1">
+  <div>
+    <h1 class="text-xl font-black tracking-tight text-slate-900">📚 Store Families</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Kategori utama paket. Pilih kategori untuk melihat varian opsi di dalamnya.</p>
+  </div>
+  
+  <form method="get" class="shrink-0">
+    <label class="relative inline-flex items-center gap-3 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-2xl cursor-pointer select-none transition-all hover:border-slate-300">
+      <input type="checkbox" name="enterprise" value="true" {% if enterprise %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+      <div class="w-8 h-4.5 bg-slate-200 rounded-full relative transition-colors duration-200 peer-checked:bg-slate-900 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-3.5 shadow-inner"></div>
+      <span class="text-xs font-black tracking-wide text-slate-500 peer-checked:text-slate-900">Enterprise Mode</span>
+    </label>
+  </form>
+</div>
+
+{% if not families %}
+<div class="bg-white border border-slate-200 rounded-[24px] p-8 text-slate-400 text-sm text-center shadow-[0_4px_16px_rgba(0,0,0,0.01)]">
+  <div class="text-3xl mb-2">🫥</div>
+  <p class="font-bold text-slate-800">Tidak ada kategori paket terdeteksi.</p>
+</div>
+{% endif %}
+
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+{% for f in families %}
+<a href="/packages/by-family?code={{ f.id }}" class="bg-white border border-slate-200/80 rounded-[20px] p-3.5 flex items-center gap-3.5 shadow-[0_2px_8px_rgba(0,0,0,0.01)] transition-all duration-200 hover:border-slate-400 hover:shadow-[0_4px_18px_rgba(0,0,0,0.02)] active:scale-[0.99] group">
+  
+  {% if f.icon %}
+  <img src="{{ f.icon }}" alt="" class="w-10 h-10 object-contain shrink-0">
+  {% else %}
+  <div class="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-lg shrink-0 shadow-inner">📦</div>
+  {% endif %}
+  
+  <div class="min-w-0 flex-1">
+    <div class="font-black text-sm text-slate-900 tracking-tight group-hover:text-black transition-colors truncate leading-snug">{{ f.label }}</div>
+    <div class="text-[10px] text-slate-400 font-mono mt-0.5 tracking-tight truncate">
+      <span class="text-slate-400 font-bold">id:</span> <span class="text-slate-600 font-medium">{{ f.id }}</span>
+    </div>
+  </div>
+  
+  <div class="text-slate-300 group-hover:text-slate-800 transition-all duration-200 ml-auto text-[10px] font-bold pr-1 transform translate-x-1 opacity-0 group-hover:opacity-100 group-hover:translate-x-0 select-none hidden sm:block">
+    ➔
+  </div>
+</a>
+{% endfor %}
+</div>
+
+<div class="pb-24"></div>
+
+{% endblock %}

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Store Segments · myengsel{% endblock %}
+{% block content %}
+
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pl-1">
+  <div>
+    <h1 class="text-xl font-black tracking-tight text-slate-900">🛍️ Store Segments</h1>
+    <p class="text-xs text-slate-400 mt-0.5">Segmen kategori penawaran khusus dan spanduk paket promosi.</p>
+  </div>
+  
+  <form method="get" class="shrink-0">
+    <label class="relative inline-flex items-center gap-3 bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-2xl cursor-pointer select-none transition-all hover:border-slate-300">
+      <input type="checkbox" name="enterprise" value="true" {% if enterprise %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+      <div class="w-8 h-4.5 bg-slate-200 rounded-full relative transition-colors duration-200 peer-checked:bg-slate-900 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-3.5 after:w-3.5 after:transition-all peer-checked:after:translate-x-3.5 shadow-inner"></div>
+      <span class="text-xs font-black tracking-wide text-slate-500 peer-checked:text-slate-900">Enterprise Mode</span>
+    </label>
+  </form>
+</div>
+
+{% if not segments %}
+<div class="bg-white border border-slate-200 rounded-[24px] p-8 text-slate-400 text-sm text-center shadow-[0_4px_16px_rgba(0,0,0,0.01)]">
+  <div class="text-3xl mb-2">🫥</div>
+  <p class="font-bold text-slate-800">Tidak ada segment.</p>
+</div>
+{% endif %}
+
+{% for seg in segments %}
+<section class="mb-8">
+  <h2 class="text-[10px] font-black tracking-wider text-slate-400 uppercase mb-3.5 pl-1">{{ seg.title }}</h2>
+  
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for b in seg.banners %}
+    {% if b.href %}
+    <a href="{{ b.href }}" class="bg-white border border-slate-200/80 rounded-[24px] p-4 flex flex-col justify-between shadow-[0_2px_8px_rgba(0,0,0,0.01)] transition-all duration-200 hover:border-slate-400 hover:shadow-[0_4px_18px_rgba(0,0,0,0.02)] active:scale-[0.99] group overflow-hidden">
+    {% else %}
+    <div class="bg-slate-50/60 border border-slate-200/40 rounded-[24px] p-4 flex flex-col justify-between opacity-60 select-none cursor-not-allowed overflow-hidden">
+    {% endif %}
+      
+      <div>
+        {% if b.image_url %}
+        <div class="aspect-[16/9] -mx-4 -mt-4 mb-3.5 bg-slate-50 border-b border-slate-100 overflow-hidden relative">
+          <img src="{{ b.image_url }}" alt="" class="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300">
+        </div>
+        {% endif %}
+        
+        <div class="font-black text-sm text-slate-900 leading-snug line-clamp-2 group-hover:text-black transition-colors">{{ b.title }}</div>
+        {% if b.family_name %}
+        <div class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wide">{{ b.family_name }}</div>
+        {% endif %}
+      </div>
+      
+      <div class="flex items-end justify-between gap-2 mt-4 pt-3 border-t border-slate-100">
+        {% if b.price %}
+        <div class="flex flex-col">
+          <div class="text-sm font-mono font-black text-slate-900 leading-none">{{ b.price | rp }}</div>
+          {% if b.original_price and b.original_price != b.price %}
+          <div class="text-[10px] font-mono text-slate-400 line-through mt-1">{{ b.original_price | rp }}</div>
+          {% endif %}
+        </div>
+        {% endif %}
+        
+        {% if b.validity %}
+        <div class="text-[10px] font-bold text-slate-400 bg-slate-50 border border-slate-100 px-2 py-0.5 rounded-lg flex items-center gap-0.5 shadow-inner">
+          ⏱ {{ b.validity }}
+        </div>
+        {% endif %}
+      </div>
+      
+      {% if not b.href %}
+      <div class="text-[9px] font-bold font-mono text-slate-400 bg-slate-100/80 border border-slate-200/40 rounded-md px-2 py-1 mt-3 text-center">
+        action: {{ b.action_type }} (unhandled)
+      </div>
+      {% endif %}
+      
+    {% if b.href %}</a>{% else %}</div>{% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+
+<div class="pb-24"></div>
+
+{% endblock %}
