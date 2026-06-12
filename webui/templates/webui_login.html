@@ -71,6 +71,8 @@
           <p class="text-xs text-slate-400 mt-1 leading-relaxed">Mohon buat akun WebUI Anda terlebih dahulu untuk mendapatkan akses penuh ke sistem.</p>
         </div>
         <form action="/u/register" method="post" class="space-y-4">
+          <input type="hidden" name="license_key" value="MYENGSEL-123">
+
           <div>
             <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5 ml-1">Username</label>
             <input class="w-full ios-input px-4 py-3 text-sm text-slate-900 placeholder-slate-400 outline-none font-mono" type="text" name="username" value="{{ username }}" placeholder="Masukkan username" required pattern="[a-z0-9][a-z0-9_-]{2,30}">
@@ -119,7 +121,6 @@
         </form>
         
         <div class="space-y-2 mt-6">
-        
           <a href="https://t.me/Bleszh" class="w-full bg-slate-50 hover:bg-slate-100 text-slate-700 py-3 rounded-2xl text-xs font-semibold border border-slate-200/60 flex items-center justify-center gap-2 transition-all">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Continue with Chat Admin
