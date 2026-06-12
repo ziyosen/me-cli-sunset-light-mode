@@ -22,12 +22,12 @@ def login_prompt(api_key: str):
 
     if not phone_number.startswith("628") or len(phone_number) < 10 or len(phone_number) > 14:
         print("Nomor tidak valid. Pastikan nomor diawali dengan '628' dan memiliki panjang yang benar.")
-        return None
+        return None  # <-- Ini return None
 
     try:
         subscriber_id = get_otp(phone_number)
         if not subscriber_id:
-            return None
+            return None  # <-- Ini return None
         print("OTP Berhasil dikirim ke nomor Anda.")
         
         try_count = 5
@@ -45,13 +45,13 @@ def login_prompt(api_key: str):
                 continue
             
             print("Berhasil login!")
-            return phone_number, tokens["refresh_token"]
+            return phone_number, tokens["refresh_token"]  # <-- Ini return tuple
 
         print("Gagal login setelah beberapa percobaan. Silahkan coba lagi nanti.")
-        return None, None
+        return None, None  # <-- Ini return tuple None
     except Exception as e:
         print(f"Gagal login: {e}")
-        return None, None
+        return None, None  # <-- Ini return tuple None
 
 def show_account_menu():
     clear_screen()
@@ -65,17 +65,26 @@ def show_account_menu():
         clear_screen()
         print("-------------------------------------------------------")
         if AuthInstance.get_active_user() is None or add_user:
-            number, refresh_token = login_prompt(AuthInstance.api_key)
-            if not refresh_token:
-                print("Gagal menambah akun. Silahkan coba lagi.")
+            # --- PERBAIKAN DI SINI ---
+            login_result = login_prompt(AuthInstance.api_key)
+            
+            # Cek apakah hasil login valid
+            if login_result is None:
+                print("Format nomor salah. Silahkan coba lagi.")
                 pause()
                 continue
+            if login_result[0] is None:
+                print("Gagal menambah akun (OTP gagal). Silahkan coba lagi.")
+                pause()
+                continue
+            
+            # Jika aman, lakukan unpack
+            number, refresh_token = login_result
             
             AuthInstance.add_refresh_token(int(number), refresh_token)
             AuthInstance.load_tokens()
             users = AuthInstance.refresh_tokens
             active_user = AuthInstance.get_active_user()
-            
             
             if add_user:
                 add_user = False
