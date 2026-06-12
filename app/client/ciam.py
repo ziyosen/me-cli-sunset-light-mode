@@ -20,9 +20,9 @@ if not BASE_CIAM_URL:
     raise ValueError("BASE_CIAM_URL environment variable not set")
 
 BASIC_AUTH = os.getenv("BASIC_AUTH")
-# AX_DEVICE_ID and AX_FP are fetched per-call (depend on CWD-relative ax.fp file).
-# Helpers below give us a (device_id, fingerprint) pair with a single file read.
-UA = os.getenv("UA")
+
+# User-Agent browser standar (tidak akan menyebabkan error whitespace)
+USER_AGENT = "Mozilla/5.0 (Linux; Android 13; SM-A035F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
 
 def _fp_pair():
     fp = load_ax_fp()
@@ -48,7 +48,7 @@ def get_otp(contact: str) -> str:
     }
     
     now = datetime.now(timezone(timedelta(hours=7)))
-    ax_request_at = java_like_timestamp(now)  # format: "2023-10-20T12:34:56.78+07:00"
+    ax_request_at = java_like_timestamp(now)
     ax_request_id = str(uuid.uuid4())
 
     payload = ""
@@ -64,7 +64,7 @@ def get_otp(contact: str) -> str:
         "Ax-Substype": "PREPAID",
         "Content-Type": "application/json",
         "Host": BASE_CIAM_URL.replace("https://", ""),
-        "User-Agent": UA,
+        "User-Agent": USER_AGENT,
     }
 
     print("Requesting OTP...")
@@ -92,7 +92,7 @@ def extend_session(subscriber_id: str) -> str:
     }
     
     now = datetime.now(timezone(timedelta(hours=7)))
-    ax_request_at = java_like_timestamp(now)  # format: "2023-10-20T12:34:56.78+07:00"
+    ax_request_at = java_like_timestamp(now)
     ax_request_id = str(uuid.uuid4())
     
     headers = {
@@ -107,7 +107,7 @@ def extend_session(subscriber_id: str) -> str:
         "Ax-Substype": "PREPAID",
         "Content-Type": "application/json",
         "Host": BASE_CIAM_URL.replace("https://", ""),
-        "User-Agent": UA,
+        "User-Agent": USER_AGENT,
     }
     
     print("Extending session...")
@@ -172,7 +172,7 @@ def submit_otp(
         "Ax-Request-Id": str(uuid.uuid4()),
         "Ax-Substype": "PREPAID",
         "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": UA,
+        "User-Agent": USER_AGENT,
     }
 
     print("Submitting OTP...")
@@ -206,7 +206,7 @@ def get_new_token(api_key: str, refresh_token: str, subscriber_id: str) -> str:
         "ax-request-device-model": "SM-N935F",
         "ax-fingerprint": _fp_pair()[1],
         "authorization": f"Basic {BASIC_AUTH}",
-        "user-agent": UA,
+        "user-agent": USER_AGENT,
         "ax-substype": "PREPAID",
         "content-type": "application/x-www-form-urlencoded"
     }
@@ -275,7 +275,7 @@ def get_auth_code(tokens: dict, pin: str, msisdn: str):
         "Ax-Request-Device-Model": "SM-N935F",
         "Ax-Fingerprint": _fp_pair()[1],
         "Authorization": f"Bearer {tokens['access_token']}",
-        "User-Agent": UA,
+        "User-Agent": USER_AGENT,
         "Ax-Substype": "PREPAID",
         "Content-Type": "application/json",
     }
