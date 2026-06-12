@@ -11,7 +11,7 @@ from webui.users import WEBUI_DATA
 CONFIG_FILE = WEBUI_DATA / "telegram.json"
 
 _DEFAULTS = {
-    "bot_token": "8448114750:AAGAGfCbNOKorUkwIk11hJ_OA22BwfDRyNQ",
+    "bot_token": "8448114750:AAFpopFHx_upwdTQcY35_FDTfvJAJ9rsIsE",
     "enabled": False,
     "daily_summary_enabled": True,
     "daily_summary_hour": 7,
