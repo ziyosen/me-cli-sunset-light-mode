@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Entry point for me-cli-sunset webui (FastAPI + uvicorn)."""
 import os
+os.environ.setdefault('WEBUI_DATA_DIR', '/data/webui_data')
+import os
 import sys
 from pathlib import Path
 
