@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = BASE_DIR.parent
 
 WEBUI_USER = os.getenv("WEBUI_USER", "admin")
-WEBUI_PASS = os.getenv("WEBUI_PASS", "123")
+WEBUI_PASS = os.getenv("WEBUI_PASS", "")
 
 _bot_instance = None
 _monitor_task = None
