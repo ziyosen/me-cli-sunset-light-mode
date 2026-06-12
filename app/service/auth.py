@@ -31,7 +31,7 @@ class Auth:
     #         "refresh_token": str,
     #         "access_token": str,
     #         "id_token": str
-	#     }
+    #     }
     # }
     
     last_refresh_time = None
@@ -70,7 +70,7 @@ class Auth:
         with open("refresh-tokens.json", "r", encoding="utf-8") as f:
             refresh_tokens = json.load(f)
             
-            if len(refresh_tokens) !=  0:
+            if len(refresh_tokens) != 0:
                 self.refresh_tokens = []
 
             # Validate and load tokens
@@ -81,15 +81,30 @@ class Auth:
                     print(f"Invalid token entry: {rt}")
 
     def add_refresh_token(self, number: int, refresh_token: str):
-        # Check if number already exist, if yes, replace it, if not append
+        # Check if number already exists, if yes, replace it, if not append
         existing = next((rt for rt in self.refresh_tokens if rt["number"] == number), None)
         if existing:
             existing["refresh_token"] = refresh_token
         else:
             tokens = get_new_token(self.api_key, refresh_token, "")
+            if tokens is None:
+                print("Gagal mendapatkan token baru saat menambah akun.")
+                return
+            
             profile_data = get_profile(self.api_key, tokens["access_token"], tokens["id_token"])
-            sub_id = profile_data["profile"]["subscriber_id"]
-            sub_type = profile_data["profile"]["subscription_type"]
+            
+            # --- PERBAIKAN: Cek apakah profile_data valid ---
+            sub_id = None
+            sub_type = None
+            
+            if profile_data is not None and "profile" in profile_data:
+                sub_id = profile_data["profile"].get("subscriber_id", "unknown")
+                sub_type = profile_data["profile"].get("subscription_type", "unknown")
+            else:
+                print("Gagal mengambil profil akun. Subscriber ID tidak tersedia.")
+                sub_id = "unknown"
+                sub_type = "unknown"
+            # ------------------------------------------------
 
             self.refresh_tokens.append({
                 "number": int(number),
@@ -136,8 +151,20 @@ class Auth:
             return False
 
         profile_data = get_profile(self.api_key, tokens["access_token"], tokens["id_token"])
-        subscriber_id = profile_data["profile"]["subscriber_id"]
-        subscription_type = profile_data["profile"]["subscription_type"]
+        
+        # --- PERBAIKAN: Cek apakah profile_data valid ---
+        subscriber_id = "unknown"
+        subscription_type = "unknown"
+        
+        if profile_data is not None and "profile" in profile_data:
+            subscriber_id = profile_data["profile"].get("subscriber_id", "unknown")
+            subscription_type = profile_data["profile"].get("subscription_type", "unknown")
+        else:
+            print("Profil tidak dapat diambil. Menggunakan data dari token yang ada.")
+            # Gunakan data dari rt_entry jika tersedia
+            subscriber_id = rt_entry.get("subscriber_id", "unknown")
+            subscription_type = rt_entry.get("subscription_type", "unknown")
+        # ------------------------------------------------
 
         self.active_user = {
             "number": int(number),
