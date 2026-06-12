@@ -7,10 +7,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Buat direktori untuk data persisten
-RUN mkdir -p /data/webui_data
+# Buat symlink agar data disimpan di volume
+RUN mkdir -p /data/webui_data && ln -s /data/webui_data /app/webui_data
 
-# Set environment variables default (akan di-override oleh fly secrets)
 ENV WEBUI_HOST=0.0.0.0 \
     WEBUI_PORT=8080
 
