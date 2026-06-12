@@ -4,11 +4,8 @@ Separate from MyXL OTP login (which is at /login). End-users register a
 webui account first, then inside their session they OTP-login their own
 MyXL number(s).
 """
-import json
-from pathlib import Path
-
 from fastapi import APIRouter, Request, Form
-from fastapi.responses import RedirectResponse, Response
+from fastapi.responses import RedirectResponse
 
 from webui.users import (
     COOKIE_NAME, SESSION_MAX_AGE,
@@ -18,25 +15,6 @@ from webui.deps import get_templates
 
 router = APIRouter()
 
-LICENSES_FILE = Path("/root/web/licenses.json")
-
-
-def load_licenses() -> dict:
-    try:
-        if LICENSES_FILE.exists():
-            with open(LICENSES_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                if isinstance(data, dict):
-                    return data
-    except Exception:
-        pass
-    return {}
-
-
-def save_licenses(data: dict):
-    LICENSES_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(LICENSES_FILE, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
 
 def _render(request: Request, template: str, **ctx):
     templates = get_templates(request)
@@ -87,25 +65,10 @@ def register_page(request: Request, error: str | None = None, info: str | None =
 @router.post("/u/register")
 def register_submit(
     request: Request,
-    license_key: str = Form(...),
     username: str = Form(...),
     password: str = Form(...),
     password_confirm: str = Form(...),
 ):
-    license_key = license_key.strip()
-    licenses = load_licenses()
-
-    if license_key not in licenses:
-        return _render(
-            request,
-            "webui_login.html",
-            mode="register",
-            error="License key tidak valid.",
-            username=username,
-            next="/",
-            users_count=len(load_users()),
-        )
-
     if password != password_confirm:
         return _render(
             request,
@@ -129,10 +92,6 @@ def register_submit(
             next="/",
             users_count=len(load_users()),
         )
-
-    # tandai license sudah dipakai
-    licenses[license_key] = True
-    save_licenses(licenses)
 
     token = make_session_token(username)
 
